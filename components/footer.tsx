@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Leaf, Mail } from "lucide-react";
+import Link from "next/link";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 
 export function Footer() {
   return (
@@ -13,12 +15,26 @@ export function Footer() {
           <Mail className="w-5 h-5" /> Contact Me
         </Button>
         
-        <div className="w-full border-t border-background/20 pt-8 flex flex-col md:flex-row justify-between items-center text-sm opacity-60">
-          <div className="flex items-center gap-2 mb-4 md:mb-0">
-            <Leaf className="w-4 h-4 text-primary" />
-            <span className="font-bold">Saltancy.</span>
+        <div className="w-full border-t border-background/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-sm">
+          <div className="flex items-center gap-2">
+            <Leaf className="w-5 h-5 text-primary" />
+            <span className="font-bold text-base">Saltancy.</span>
           </div>
-          <p>© {new Date().getFullYear()} Saltancy Consulting. All rights reserved.</p>
+
+          <div className="flex items-center gap-6 opacity-80">
+            <Link href="/privacy" className="hover:text-primary transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-primary transition-colors">
+              Terms & Conditions
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <ThemeSwitcher inverted={true} />
+            <p className="opacity-60">© {new Date().getFullYear()} Saltancy Consulting.</p>
+          </div>
+          
         </div>
       </div>
     </footer>
