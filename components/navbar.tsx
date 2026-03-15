@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Leaf } from "lucide-react";
+import { ContactModal } from "@/components/contact-modal";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 
 export function Navbar() {
@@ -20,9 +21,11 @@ export function Navbar() {
         
         <div className="flex items-center gap-2">
           <ThemeSwitcher />
-          <Button className="rounded-full px-6">
-            Let's Talk
-          </Button>
+          <ContactModal>
+            <Button className="rounded-full px-6">
+              Let's Talk
+            </Button>
+          </ContactModal>
         </div>
       </div>
     </nav>
