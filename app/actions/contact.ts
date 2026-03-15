@@ -9,16 +9,24 @@ export async function sendEmail(formData: FormData) {
   const email = formData.get("email") as string;
   const message = formData.get("message") as string;
 
+  const toEmail = process.env.SALTANCY_EMAIL;
+
+  if (!toEmail) {
+    console.error("SALTANCY_EMAIL environment variable is not set.");
+    return { success: false, error: "Server configuration error." };
+  }
+
   try {
     const data = await resend.emails.send({
       from: "Saltancy Website <onboarding@resend.dev>",
-      to: process.env.SALTANCY_EMAIL,
+      to: toEmail,
       subject: `New Consultancy Lead from ${name}`,
       text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
     });
 
     return { success: true, data };
   } catch (error) {
+    console.error("Resend API Error:", error);
     return { success: false, error: "Something went wrong." };
   }
 }
