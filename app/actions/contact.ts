@@ -12,7 +12,7 @@ export async function sendEmail(formData: FormData) {
   try {
     const data = await resend.emails.send({
       from: "Saltancy Website <onboarding@resend.dev>",
-      to: "anthonyleung07@gmail.com",
+      to: process.env.SALTANCY_EMAIL,
       subject: `New Consultancy Lead from ${name}`,
       text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
     });
