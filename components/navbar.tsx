@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Leaf } from "lucide-react";
+import { Hexagon } from "lucide-react";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ContactModal } from "@/components/contact-modal";
 
@@ -7,7 +7,7 @@ export function Navbar() {
   return (
     <nav className="container mx-auto px-6 py-6 flex justify-between items-center">
       <div className="flex items-center gap-2">
-        <Leaf className="w-6 h-6 text-primary" />
+        <Hexagon className="w-6 h-6 text-primary" strokeWidth={2.5} />
         <span className="text-2xl font-bold tracking-tighter text-foreground">
           Saltancy<span className="text-primary">.</span>
         </span>

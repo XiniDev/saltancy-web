@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Leaf, Mail } from "lucide-react";
+import { Hexagon, Mail } from "lucide-react";
 import Link from "next/link";
 import { ContactModal } from "@/components/contact-modal";
 import { ThemeSwitcher } from "@/components/theme-switcher";
@@ -20,7 +20,7 @@ export function Footer() {
         <div className="w-full border-t border-background/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-sm">
           <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
             <div className="flex items-center gap-2">
-              <Leaf className="w-5 h-5 text-primary" />
+              <Hexagon className="w-5 h-5 text-primary" strokeWidth={2.5} />
               <span className="font-bold text-base">Saltancy.</span>
             </div>
             <span className="hidden md:inline-block opacity-40">|</span>
