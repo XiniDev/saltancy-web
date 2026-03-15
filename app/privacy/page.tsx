@@ -8,6 +8,7 @@ export const metadata = {
 
 export default function PrivacyPage() {
   const lastUpdated = "March 2026";
+  const email = process.env.SALTANCY_EMAIL;
 
   return (
     <div className="min-h-screen flex flex-col selection:bg-secondary">
@@ -26,7 +27,7 @@ export default function PrivacyPage() {
           <section className="space-y-4">
             <h2 className="text-2xl font-bold text-foreground">1. Introduction</h2>
             <p>
-              Welcome to Saltancy ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about this privacy notice or our practices with regard to your personal information, please contact us at <strong>[Your Email Address]</strong>.
+              Welcome to Saltancy ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about this privacy notice or our practices with regard to your personal information, please contact us at <strong>{email}</strong>.
             </p>
             <p>
               When you visit our website and use our services, you trust us with your personal information. We take your privacy very seriously. In this privacy notice, we seek to explain to you in the clearest way possible what information we collect, how we use it, and what rights you have in relation to it.
@@ -87,8 +88,8 @@ export default function PrivacyPage() {
             </p>
             <div className="bg-muted p-6 rounded-xl border border-border mt-4">
               <p className="font-medium text-foreground">Saltancy Consulting</p>
-              <p>Email: <strong>[Your Email Address]</strong></p>
-              <p>Address: <strong>[Your City, Country]</strong></p>
+              <p>Email: <strong>{email}</strong>.</p>
+              <p>Address: <strong>Available upon request</strong></p>
             </div>
           </section>
 

@@ -8,6 +8,7 @@ export const metadata = {
 
 export default function TermsPage() {
   const lastUpdated = "March 2026";
+  const email = process.env.SALTANCY_EMAIL;
 
   return (
     <div className="min-h-screen flex flex-col selection:bg-secondary">
@@ -58,7 +59,7 @@ export default function TermsPage() {
           <section className="space-y-4">
             <h2 className="text-2xl font-bold text-foreground">5. Payment Terms</h2>
             <p>
-              Payment schedules will be detailed in your project proposal. Typically, we require an upfront deposit before work commences, with subsequent milestone payments. Invoices are due within <strong>[e.g., 14 or 30]</strong> days of receipt. We reserve the right to pause work or withhold deliverables if payments are delayed.
+              Payment schedules will be detailed in your project proposal. Typically, we require an upfront deposit before work commences, with subsequent milestone payments. Invoices are due within <strong>14</strong> days of receipt. We reserve the right to pause work or withhold deliverables if payments are delayed.
             </p>
           </section>
 
@@ -79,7 +80,7 @@ export default function TermsPage() {
           <section className="space-y-4">
             <h2 className="text-2xl font-bold text-foreground">8. Governing Law</h2>
             <p>
-              These Terms and Conditions shall be governed by and construed in accordance with the laws of <strong>[e.g., England and Wales / Your State/Country]</strong>, without regard to its conflict of law provisions.
+              These Terms and Conditions shall be governed by and construed in accordance with the laws of <strong>the United Kingdom</strong>, without regard to its conflict of law provisions.
             </p>
           </section>
 
@@ -90,7 +91,8 @@ export default function TermsPage() {
             </p>
             <div className="bg-muted p-6 rounded-xl border border-border mt-4">
               <p className="font-medium text-foreground">Saltancy Consulting</p>
-              <p>Email: <strong>[Your Email Address]</strong></p>
+              <p>Email: <strong>{email}</strong></p>
+              <p>Address: <strong>Available upon request</strong></p>
             </div>
           </section>
 
