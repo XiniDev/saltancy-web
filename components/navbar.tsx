@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Leaf } from "lucide-react";
-import { ContactModal } from "@/components/contact-modal";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { ContactModal } from "@/components/contact-modal";
 
 export function Navbar() {
   return (

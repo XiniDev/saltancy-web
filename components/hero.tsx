@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
+import { ContactModal } from "@/components/contact-modal";
 
 export function Hero() {
   return (
@@ -16,11 +17,14 @@ export function Hero() {
         We build robust, scalable software, websites, and full-stack applications tailored to your needs.
       </p>
       <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-        <Button size="lg" className="rounded-full text-lg px-8 py-6 flex items-center gap-2">
-          Start a Project <ArrowRight className="w-5 h-5" />
-        </Button>
-        <Button variant="outline" size="lg" className="rounded-full text-lg px-8 py-6">
-          View Our Services
+        <ContactModal>
+          <Button size="lg" className="rounded-full text-lg px-8 py-6 flex items-center gap-2">
+            Start a Project <ArrowRight className="w-5 h-5" />
+          </Button>
+        </ContactModal>
+
+        <Button variant="outline" size="lg" className="rounded-full text-lg px-8 py-6" asChild>
+          <a href="#services">View Our Services</a>
         </Button>
       </div>
     </section>
