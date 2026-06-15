@@ -30,13 +30,14 @@ export const ThemeSwitcher = ({ inverted = false }: { inverted?: boolean }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label="Toggle theme"
           className={cn(
             "rounded-full w-9 px-0 outline-none",
             inverted
-              ? "bg-transparent! text-background! hover:bg-background/10! data-[state=open]:bg-background/10! data-[state=open]:text-background!" 
+              ? "bg-transparent! text-background! hover:bg-background/10! data-[state=open]:bg-background/10! data-[state=open]:text-background!"
               : "text-muted-foreground"
           )}
         >
@@ -49,31 +50,31 @@ export const ThemeSwitcher = ({ inverted = false }: { inverted?: boolean }) => {
           )}
         </Button>
       </DropdownMenuTrigger>
-      
-      <DropdownMenuContent 
+
+      <DropdownMenuContent
         className={cn(
-          "w-content", 
+          "w-content",
           inverted && "bg-foreground text-background border-background/20"
-        )} 
+        )}
         align="end"
       >
         <DropdownMenuRadioGroup value={theme} onValueChange={(e) => setTheme(e)}>
-          <DropdownMenuRadioItem 
-            className={cn("flex gap-2 cursor-pointer", inverted && "focus:bg-background/10! focus:text-background!")} 
+          <DropdownMenuRadioItem
+            className={cn("flex gap-2 cursor-pointer", inverted && "focus:bg-background/10! focus:text-background!")}
             value="light"
           >
             <Sun size={ICON_SIZE} className={inverted ? "" : "text-muted-foreground"} /> <span>Light</span>
           </DropdownMenuRadioItem>
-          
-          <DropdownMenuRadioItem 
-            className={cn("flex gap-2 cursor-pointer", inverted && "focus:bg-background/10! focus:text-background!")} 
+
+          <DropdownMenuRadioItem
+            className={cn("flex gap-2 cursor-pointer", inverted && "focus:bg-background/10! focus:text-background!")}
             value="dark"
           >
             <Moon size={ICON_SIZE} className={inverted ? "" : "text-muted-foreground"} /> <span>Dark</span>
           </DropdownMenuRadioItem>
-          
-          <DropdownMenuRadioItem 
-            className={cn("flex gap-2 cursor-pointer", inverted && "focus:bg-background/10! focus:text-background!")} 
+
+          <DropdownMenuRadioItem
+            className={cn("flex gap-2 cursor-pointer", inverted && "focus:bg-background/10! focus:text-background!")}
             value="system"
           >
             <Laptop size={ICON_SIZE} className={inverted ? "" : "text-muted-foreground"} /> <span>System</span>
