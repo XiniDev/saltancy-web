@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Inter, Fraunces } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { MotionProvider } from "@/components/motion/motion-provider";
@@ -26,6 +25,9 @@ export const metadata: Metadata = {
   description: meta.description,
 };
 
+/** Cloudflare Web Analytics site token, read at build time. Without one, no beacon ships. */
+const webAnalyticsToken = process.env.SALTANCY_WEB_ANALYTICS_TOKEN;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -39,8 +41,14 @@ export default function RootLayout({
     >
       <body className="antialiased">
         <MotionProvider>{children}</MotionProvider>
-        {/* The analytics script is served by Vercel; elsewhere it would 404. */}
-        {process.env.VERCEL && <Analytics />}
+        {/* Cookieless page-view analytics, matching "basic analytics" in the privacy policy. */}
+        {webAnalyticsToken && (
+          <script
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={JSON.stringify({ token: webAnalyticsToken })}
+          />
+        )}
       </body>
     </html>
   );
