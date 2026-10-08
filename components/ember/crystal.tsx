@@ -114,6 +114,35 @@ export function GrowCrystal({ stage, className }: { stage: GrowStage | null; cla
   );
 }
 
+/**
+ * The logo mark: the hero crystal in miniature, a glass cube with a glowing
+ * ember core. It turns slowly unless `still`, and always holds still under
+ * reduced motion. Its still SVG twin, for icons, is lib/brand/mark.ts.
+ */
+export function CrystalMark({ still, className }: { still?: boolean; className?: string }) {
+  const hold = still && "[animation:none]";
+  return (
+    <span
+      aria-hidden
+      data-logo-mark
+      className={cn(
+        "crystal-stage logo-mark size-7 shrink-0 perspective-[120px]",
+        "[--core:8px] [--cube-glow:7px] [--cube-inner-glow:5px] [--mark:18px]",
+        className
+      )}
+    >
+      <Cube lattice className={cn("crystal-spin", hold)} style={{ "--cube": "var(--mark)", "--spin-duration": "20s" }}>
+        <Cube
+          tone="ember"
+          glow
+          className={cn("crystal-core absolute top-[calc((var(--mark)-var(--core))/2)] left-[calc((var(--mark)-var(--core))/2)]", hold)}
+          style={{ "--cube": "var(--core)" }}
+        />
+      </Cube>
+    </span>
+  );
+}
+
 /** The small ember seed crystal where the light stream ends. */
 export function SeedCrystal({ className }: { className?: string }) {
   return (

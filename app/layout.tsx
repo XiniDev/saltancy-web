@@ -21,8 +21,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // Without this, Next resolves preview-image URLs against localhost outside Vercel.
+  metadataBase: new URL(meta.url),
   title: meta.title,
   description: meta.description,
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: meta.siteName,
+    title: meta.title,
+    description: meta.description,
+  },
 };
 
 /** Cloudflare Web Analytics site token, read at build time. Without one, no beacon ships. */

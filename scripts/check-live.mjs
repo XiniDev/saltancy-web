@@ -31,6 +31,14 @@ async function check() {
     expect(problems, home.body.includes(`{&quot;token&quot;:&quot;${ANALYTICS_TOKEN}&quot;}`), "www: analytics beacon missing");
   }
 
+  expect(
+    problems,
+    home.body.includes(`<meta property="og:image" content="${WWW}/opengraph-image`),
+    "www: the social card image is not an absolute www URL"
+  );
+  const favicon = await get(`${WWW}/favicon.ico`);
+  expect(problems, favicon.status === 200, `favicon.ico: status ${favicon.status}`);
+
   const asset = home.body.match(/\/_next\/static\/[^"]+\.js/)?.[0];
   expect(problems, !!asset, "www: no /_next/static script found in the page");
   if (asset) {

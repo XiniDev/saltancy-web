@@ -264,6 +264,11 @@
     box-shadow: 0 0 var(--cube-glow, 22px) var(--ember-glow);
   }
 
+  /* The logo mark is tiny: firmer glass edges keep its shape beside the wordmark. */
+  .logo-mark .cube[data-tone="glass"] > .cube-face {
+    border-color: var(--glass-edge-strong);
+  }
+
   /* Resting angles: what reduced motion (and the first paint) shows. */
   .crystal-spin {
     transform: rotateX(-24deg) rotateY(38deg);
