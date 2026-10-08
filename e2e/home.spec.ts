@@ -320,6 +320,56 @@ test.describe("home page", () => {
   });
 });
 
+test.describe("brand", () => {
+  test("the crystal mark turns in the header and holds still in the footer", async ({ page }) => {
+    await open(page);
+    const marks = await page.evaluate(() => {
+      const turning = (sel: string) => {
+        const mark = document.querySelector(sel);
+        if (!mark) return null;
+        return {
+          cubes: mark.querySelectorAll(".cube").length,
+          running: mark.getAnimations({ subtree: true }).filter((a) => a.playState === "running").length,
+        };
+      };
+      return { header: turning("[data-site-header] [data-logo-mark]"), footer: turning("footer [data-logo-mark]") };
+    });
+    console.log(`  marks: ${JSON.stringify(marks)}`);
+    expect(marks.header).toEqual({ cubes: 2, running: 2 });
+    expect(marks.footer).toEqual({ cubes: 2, running: 0 });
+  });
+
+  test("icons, favicon and the social card are linked and served", async ({ page, request }) => {
+    await page.goto("/");
+    const head = await page.evaluate(() => ({
+      icon: document.querySelector('link[rel="icon"]')?.getAttribute("href"),
+      apple: document.querySelector('link[rel="apple-touch-icon"]')?.getAttribute("href"),
+      ogImage: document.querySelector('meta[property="og:image"]')?.getAttribute("content"),
+      ogUrl: document.querySelector('meta[property="og:url"]')?.getAttribute("content"),
+    }));
+    console.log(`  head: ${JSON.stringify(head)}`);
+    // Shared links must point at the live site, never at the machine that built it.
+    expect(head.ogUrl).toBe("https://www.saltancy.com");
+    expect(head.ogImage).toMatch(/^https:\/\/www\.saltancy\.com\/opengraph-image/);
+
+    const fetchAsset = async (path: string, type: string) => {
+      const res = await request.get(path);
+      expect(res.status(), path).toBe(200);
+      expect(res.headers()["content-type"], path).toContain(type);
+      return res.body();
+    };
+    const pngSize = (png: Buffer) => [png.readUInt32BE(16), png.readUInt32BE(20)];
+
+    expect(await fetchAsset(head.icon!, "image/svg+xml")).toBeTruthy();
+    expect(pngSize(await fetchAsset(head.apple!, "image/png"))).toEqual([180, 180]);
+    expect(pngSize(await fetchAsset(new URL(head.ogImage!).pathname + new URL(head.ogImage!).search, "image/png"))).toEqual([1200, 630]);
+
+    const ico = await fetchAsset("/favicon.ico", "image/vnd.microsoft.icon");
+    const sizes = Array.from({ length: ico.readUInt16LE(4) }, (_, i) => ico.readUInt8(6 + i * 16));
+    expect(sizes).toEqual([16, 32, 48]);
+  });
+});
+
 test.describe("contact form", () => {
   test.skip(!!process.env.E2E_BASE_URL, "A deployed site sends real email; only local sites use the mock Resend API.");
 
@@ -333,6 +383,19 @@ test.describe("contact form", () => {
     await dialog.getByRole("button", { name: "Send message" }).click();
     return dialog;
   }
+
+  test("opening focuses the name field with a mouse, and the dialog itself on touch", async ({ page }) => {
+    await open(page);
+    await page.locator("#top button", { hasText: "Start a project" }).click();
+    await page.getByRole("dialog").waitFor();
+    const coarse = await page.evaluate(() => window.matchMedia("(pointer: coarse)").matches);
+    const focused = await page.evaluate(() => {
+      const el = document.activeElement;
+      return el?.id === "name" ? "name" : el?.getAttribute("role");
+    });
+    console.log(`  pointer ${coarse ? "coarse" : "fine"}: focus on ${focused}`);
+    expect(focused).toBe(coarse ? "dialog" : "name");
+  });
 
   test("a lead goes out through Resend, and a refused send says so", async ({ page, request }) => {
     await request.post(`${MOCK_RESEND_URL}/__mock`, { data: { refuse: false } });

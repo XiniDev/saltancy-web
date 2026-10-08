@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { sendEmail } from "@/app/actions/contact";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -14,12 +14,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Cube } from "@/components/ember/crystal";
+import { pill } from "@/components/ember/pill";
+import { Accent, Eyebrow } from "@/components/ember/type";
 import { LatticePattern } from "@/components/primitives/lattice-pattern";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { contact } from "@/lib/content/home";
 import { cn } from "@/lib/utils";
 
-type FieldKey = "name" | "email" | "message";
+type FieldKey = keyof typeof contact.fields;
 
+/** The lattice node beside each label: lights up ember once the field is filled in properly. */
 function FieldNode({ valid }: { valid: boolean }) {
   return (
     <span
@@ -32,30 +36,22 @@ function FieldNode({ valid }: { valid: boolean }) {
   );
 }
 
-function CheckCube() {
+/** A small turning ember cube: the site's crystal language, standing in for a tick. */
+function SentCrystal() {
   return (
-    <svg viewBox="0 0 48 48" className="size-16 text-primary" fill="none" aria-hidden>
-      <rect
-        x="9"
-        y="9"
-        width="30"
-        height="30"
-        rx="7"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeOpacity="0.5"
-      />
-      <path
-        d="M17 24.5l4.5 4.5 9-11"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="animate-in fade-in zoom-in-50 duration-500"
-      />
-    </svg>
+    <span aria-hidden className="crystal-stage size-20 perspective-[320px] [--cube-glow:14px] [--cube:30px]">
+      <Cube tone="ember" glow className="crystal-spin" style={{ "--spin-duration": "9s" }} />
+    </span>
   );
 }
+
+const heading = "font-serif text-[34px] leading-[1.05] font-normal tracking-[-0.03em] text-foreground-strong";
+const label = "flex items-center gap-2 font-mono text-[11px] tracking-[0.08em] text-subtle-foreground uppercase";
+const field = cn(
+  "rounded-xl border-hairline-strong bg-background/60 px-3.5 text-[15px] text-foreground md:text-[15px]",
+  "placeholder:text-subtle-foreground/80",
+  "focus-visible:border-primary/70 focus-visible:ring-2 focus-visible:ring-ring/15"
+);
 
 export function ContactModal({ children }: { children: React.ReactNode }) {
   const [isPending, setIsPending] = useState(false);
@@ -67,11 +63,10 @@ export function ContactModal({ children }: { children: React.ReactNode }) {
     message: false,
   });
 
-  function check(field: FieldKey, value: string) {
+  function check(key: FieldKey, value: string) {
     const v = value.trim();
-    const ok =
-      field === "email" ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) : v.length > 1;
-    setValid((s) => ({ ...s, [field]: ok }));
+    const ok = key === "email" ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) : v.length > 1;
+    setValid((s) => ({ ...s, [key]: ok }));
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -88,14 +83,24 @@ export function ContactModal({ children }: { children: React.ReactNode }) {
       setIsSuccess(true);
       setTimeout(() => setIsSuccess(false), 6000);
     } else {
-      setError("Something didn't connect. Please try again in a moment.");
+      setError(contact.error);
     }
   }
 
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="overflow-hidden rounded-2xl border border-border bg-card ring-0 sm:max-w-md">
+      <DialogContent
+        className="overflow-hidden rounded-3xl border border-hairline bg-card p-7 ring-0 sm:max-w-md"
+        onOpenAutoFocus={(event) => {
+          // On touch screens, focusing the first field would throw the keyboard over the form
+          // before anyone has read it. Focus the dialog itself there instead.
+          if (window.matchMedia("(pointer: coarse)").matches) {
+            event.preventDefault();
+            (event.currentTarget as HTMLElement).focus();
+          }
+        }}
+      >
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 text-foreground/[0.05] [mask-image:radial-gradient(70%_50%_at_82%_0%,black,transparent)]"
@@ -104,69 +109,69 @@ export function ContactModal({ children }: { children: React.ReactNode }) {
         </div>
 
         {isSuccess ? (
-          <div role="status" aria-live="polite" className="relative flex flex-col items-center justify-center gap-3 py-8 text-center">
-            <CheckCube />
+          <div role="status" aria-live="polite" className="relative flex flex-col items-center gap-4 py-6 text-center">
+            <SentCrystal />
             <div>
-              <p className="font-serif text-2xl font-medium tracking-tight text-foreground">
-                You&apos;re in.
+              <p className={heading}>
+                {contact.success.before} <Accent>{contact.success.emphasis}</Accent>
+                {contact.success.end}
               </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Message received — I&apos;ll get back within 24 hours.
-              </p>
+              <p className="mt-2 text-[15px] leading-relaxed text-balance text-muted-foreground">{contact.success.body}</p>
             </div>
           </div>
         ) : (
           <>
-            <DialogHeader className="relative">
-              <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                Get in touch
-              </p>
-              <DialogTitle className="font-serif text-2xl font-medium tracking-tight text-foreground">
-                Let&apos;s <span className="text-primary">talk</span>
+            <DialogHeader className="relative gap-3">
+              <Eyebrow>{contact.eyebrow}</Eyebrow>
+              <DialogTitle className={heading}>
+                {contact.heading.before} <Accent>{contact.heading.emphasis}</Accent>
+                {contact.heading.end}
               </DialogTitle>
-              <DialogDescription>
-                Tell me what you&apos;re building — I&apos;ll get back within 24 hours.
+              <DialogDescription className="text-[15px] leading-relaxed text-pretty text-muted-foreground">
+                {contact.sub}
               </DialogDescription>
             </DialogHeader>
 
             <form onSubmit={handleSubmit} className="relative space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="flex items-center gap-2">
-                  <FieldNode valid={valid.name} /> Your name
+              <div className="space-y-2.5">
+                <Label htmlFor="name" className={label}>
+                  <FieldNode valid={valid.name} /> {contact.fields.name.label}
                 </Label>
                 <Input
                   id="name"
                   name="name"
                   required
-                  placeholder="Jane Rivera"
-                  className="rounded-md bg-background"
+                  autoComplete="name"
+                  placeholder={contact.fields.name.placeholder}
+                  className={cn(field, "h-11")}
                   onChange={(e) => check("name", e.target.value)}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email" className="flex items-center gap-2">
-                  <FieldNode valid={valid.email} /> Email
+              <div className="space-y-2.5">
+                <Label htmlFor="email" className={label}>
+                  <FieldNode valid={valid.email} /> {contact.fields.email.label}
                 </Label>
                 <Input
                   id="email"
                   name="email"
                   type="email"
                   required
-                  placeholder="jane@company.com"
-                  className="rounded-md bg-background"
+                  autoComplete="email"
+                  placeholder={contact.fields.email.placeholder}
+                  className={cn(field, "h-11")}
                   onChange={(e) => check("email", e.target.value)}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="message" className="flex items-center gap-2">
-                  <FieldNode valid={valid.message} /> What are you building?
+              <div className="space-y-2.5">
+                <Label htmlFor="message" className={label}>
+                  <FieldNode valid={valid.message} /> {contact.fields.message.label}
                 </Label>
                 <Textarea
                   id="message"
                   name="message"
                   required
-                  placeholder="A scalable backend, a new web app, a system that needs to hold up under load…"
-                  className="min-h-28 rounded-md bg-background"
+                  placeholder={contact.fields.message.placeholder}
+                  className={cn(field, "min-h-28 py-3")}
                   onChange={(e) => check("message", e.target.value)}
                 />
               </div>
@@ -177,22 +182,22 @@ export function ContactModal({ children }: { children: React.ReactNode }) {
                 </p>
               )}
 
-              <Button
+              <button
                 type="submit"
                 disabled={isPending}
-                className="group h-11 w-full rounded-2xl text-base"
+                className={cn(pill({ variant: "accent", size: "lg", block: true }), "group disabled:cursor-wait disabled:opacity-70")}
               >
                 {isPending ? (
                   <>
-                    <Loader2 className="size-4 animate-spin" /> Sending…
+                    <Loader2 className="size-4 animate-spin" aria-hidden /> {contact.sending}
                   </>
                 ) : (
                   <>
-                    Send message
-                    <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
+                    {contact.submit}
+                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
                   </>
                 )}
-              </Button>
+              </button>
             </form>
           </>
         )}

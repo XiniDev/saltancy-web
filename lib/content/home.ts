@@ -128,6 +128,25 @@ export const start = {
   emailLead: "Email",
 };
 
+/** The contact pop-up that "Start a project" opens. */
+export const contact = {
+  eyebrow: "Get in touch",
+  heading: { before: "Let's", emphasis: "talk", end: "." },
+  sub: "Tell us what you're building. We'll get back to you within 24 hours.",
+  fields: {
+    name: { label: "Your name", placeholder: "First and last name" },
+    email: { label: "Email", placeholder: "name@company.com" },
+    message: {
+      label: "What are you building?",
+      placeholder: "What you're building, where it stands, and when you'd like it live.",
+    },
+  },
+  submit: "Send message",
+  sending: "Sending…",
+  success: { before: "You're", emphasis: "in", end: ".", body: "Message received. We'll get back to you within 24 hours." },
+  error: "Something didn't connect. Please try again in a moment.",
+};
+
 export const footer = {
   line: "A small technical consultancy building web, backend and mobile software.",
   navLabel: "Navigate",
@@ -135,6 +154,9 @@ export const footer = {
 };
 
 export const meta = {
+  /** The canonical origin. Shared links and their preview images resolve against it. */
+  url: "https://www.saltancy.com",
+  siteName: "Saltancy",
   title: "Saltancy | Technical Consultancy",
   description:
     "Saltancy designs and builds web apps, backends and mobile apps: engineered properly, shipped quickly, and easy to change once they're live.",
