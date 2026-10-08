@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saltancy — Ember on a phone (standalone preview)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&amp;family=Geist:wght@300..700&amp;family=Geist+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#0C0907}
+a{color:#EFE6DA;text-decoration:none}
+a:hover{color:#FFFFFF}
+.sa-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.sa-f{position:absolute;left:0;top:0;width:100%;height:100%;box-sizing:border-box;display:block}
+.sa-g{border:1px solid rgba(255,236,214,.42);background-color:rgba(255,240,222,.06);box-shadow:inset 0 0 20px rgba(255,214,170,.08)}
+.sa-gt{border:1px solid rgba(255,236,214,.55);background-color:rgba(255,240,222,.17)}
+.sa-gb{border:1px solid rgba(255,236,214,.28);background-color:rgba(255,240,222,.03)}
+.sa-lat{background-image:linear-gradient(rgba(255,236,214,.17) 1px,transparent 1px),linear-gradient(90deg,rgba(255,236,214,.17) 1px,transparent 1px);background-size:50% 50%;background-position:-1px -1px}
+.sa-hm>.sa-f1{transform:translateZ(56px)}.sa-hm>.sa-f2{transform:rotateY(180deg) translateZ(56px)}.sa-hm>.sa-f3{transform:rotateY(90deg) translateZ(56px)}.sa-hm>.sa-f4{transform:rotateY(-90deg) translateZ(56px)}.sa-hm>.sa-f5{transform:rotateX(90deg) translateZ(56px)}.sa-hm>.sa-f6{transform:rotateX(-90deg) translateZ(56px)}
+.sa-cm>.sa-f1{transform:translateZ(20px)}.sa-cm>.sa-f2{transform:rotateY(180deg) translateZ(20px)}.sa-cm>.sa-f3{transform:rotateY(90deg) translateZ(20px)}.sa-cm>.sa-f4{transform:rotateY(-90deg) translateZ(20px)}.sa-cm>.sa-f5{transform:rotateX(90deg) translateZ(20px)}.sa-cm>.sa-f6{transform:rotateX(-90deg) translateZ(20px)}
+.sa-um>.sa-f1{transform:translateZ(30px)}.sa-um>.sa-f2{transform:rotateY(180deg) translateZ(30px)}.sa-um>.sa-f3{transform:rotateY(90deg) translateZ(30px)}.sa-um>.sa-f4{transform:rotateY(-90deg) translateZ(30px)}.sa-um>.sa-f5{transform:rotateX(90deg) translateZ(30px)}.sa-um>.sa-f6{transform:rotateX(-90deg) translateZ(30px)}
+.sa-sm>.sa-f1{transform:translateZ(14px)}.sa-sm>.sa-f2{transform:rotateY(180deg) translateZ(14px)}.sa-sm>.sa-f3{transform:rotateY(90deg) translateZ(14px)}.sa-sm>.sa-f4{transform:rotateY(-90deg) translateZ(14px)}.sa-sm>.sa-f5{transform:rotateX(90deg) translateZ(14px)}.sa-sm>.sa-f6{transform:rotateX(-90deg) translateZ(14px)}
+@keyframes saSpin{from{transform:rotateX(-24deg) rotateY(0deg)}to{transform:rotateX(-24deg) rotateY(360deg)}}
+@keyframes saCore{from{transform:rotateX(35deg) rotateY(360deg) rotateZ(0deg)}to{transform:rotateX(35deg) rotateY(0deg) rotateZ(360deg)}}
+@keyframes saSpin2{from{transform:rotateX(-28deg) rotateY(20deg)}to{transform:rotateX(-28deg) rotateY(380deg)}}
+@keyframes saBlink{0%,100%{opacity:1}50%{opacity:.3}}
+.sa-spin{animation:saSpin 32s linear infinite}
+.sa-core{animation:saCore 14s linear infinite}
+.sa-spin2{animation:saSpin2 40s linear infinite}
+.sa-seed{animation:saSpin 9s linear infinite}
+.sa-blink{animation:saBlink 1.6s ease-in-out infinite}
+.sa-step{background:none;border:0;padding:0;margin:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.sa-step:focus-visible{outline:2px solid #F07B3B;outline-offset:6px;border-radius:6px}
+.sa-still,.sa-still *{animation-play-state:paused !important}
+@media (prefers-reduced-motion: reduce){.sa-root *{animation:none !important}.sa-spin,.sa-seed{transform:rotateX(-24deg) rotateY(38deg)}.sa-spin2{transform:rotateX(-28deg) rotateY(40deg)}.sa-core{transform:rotateX(35deg) rotateY(45deg)}}
+</style>
+<style>[data-sa-root]{margin:0 auto}</style>
+</head>
+<body>
+<div data-sa-root="ember-mobile" class="sa-root" style="position: relative; overflow: hidden; width: 390px; height: 3800px; background: #0C0907; color: #EFE6DA; font-family: 'Geist', ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased">
+
+<canvas data-sa-stream="ember-mobile" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; pointer-events: none; z-index: 0"></canvas>
+
+<header style="position: absolute; top: 0; left: 0; right: 0; z-index: 20; height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px 0 20px; box-sizing: border-box">
+<a href="#top" style="display: inline-flex; align-items: center; gap: 9px; min-height: 44px; font-family: 'Fraunces', Georgia, serif; font-size: 20px; font-weight: 500; letter-spacing: -0.01em; color: #F7EFE5">
+<svg width="20" height="22" viewBox="0 0 26 28" aria-hidden="true"><path d="M13 1 L25 8 L13 15 L1 8 Z" style="fill: #F07B3B"></path><path d="M1 8 L13 15 L13 27 L1 20 Z" style="fill: #3A2E25"></path><path d="M25 8 L13 15 L13 27 L25 20 Z" style="fill: #5A4636"></path></svg>
+<span>Saltancy<span style="color: #F07B3B">.</span></span>
+</a>
+<div style="display: flex; align-items: center; gap: 8px">
+<a href="#signin" aria-label="Client sign in" style="width: 44px; height: 44px; border-radius: 999px; border: 1px solid rgba(239,226,210,.18); display: flex; align-items: center; justify-content: center; box-sizing: border-box">
+<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" style="fill: none; stroke: #E9DFD2; stroke-width: 1.4px; stroke-linecap: round; stroke-linejoin: round"><rect x="3" y="7" width="10" height="7" rx="1.5"></rect><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"></path></svg>
+</a>
+<button type="button" aria-label="Open menu" style="width: 44px; height: 44px; padding: 0; border-radius: 999px; border: 1px solid rgba(239,226,210,.18); background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer">
+<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" style="fill: none; stroke: #E9DFD2; stroke-width: 1.5px; stroke-linecap: round"><path d="M3 6h12M3 12h12"></path></svg>
+</button>
+</div>
+</header>
+
+<section id="top" style="position: relative; z-index: 1; height: 780px; display: flex; flex-direction: column; align-items: center; padding: 96px 24px 0; box-sizing: border-box; text-align: center; text-shadow: 0 1px 22px rgba(12,9,7,.92)">
+<p style="margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; color: #A89B8B">WEB · BACKEND · MOBILE</p>
+<h1 style="margin: 20px 0 0; display: flex; flex-direction: column; align-items: center; font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 46px; line-height: 1.02; letter-spacing: -0.035em; color: #F7EFE5">
+<span>Software worth </span>
+<span data-sa-anchor="hero" aria-hidden="true" style="position: relative; display: flex; align-items: center; justify-content: center; width: 220px; height: 200px; perspective: 800px">
+<span class="sa-hm sa-spin" style="position: relative; display: block; width: 112px; height: 112px; transform-style: preserve-3d; animation-delay: -5s">
+<span class="sa-f sa-f1 sa-g sa-lat"></span>
+<span class="sa-f sa-f2 sa-g sa-lat"></span>
+<span class="sa-f sa-f3 sa-g sa-lat"></span>
+<span class="sa-f sa-f4 sa-g sa-lat"></span>
+<span class="sa-f sa-f5 sa-gt sa-lat"></span>
+<span class="sa-f sa-f6 sa-gb"></span>
+<span class="sa-cm sa-core" style="position: absolute; left: 36px; top: 36px; display: block; width: 40px; height: 40px; transform-style: preserve-3d; animation-delay: -3s">
+<span class="sa-f sa-f1" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.35); box-shadow: 0 0 16px rgba(240,123,59,0.55)"></span>
+<span class="sa-f sa-f2" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.35); box-shadow: 0 0 16px rgba(240,123,59,0.55)"></span>
+<span class="sa-f sa-f3" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.35); box-shadow: 0 0 16px rgba(240,123,59,0.55)"></span>
+<span class="sa-f sa-f4" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.35); box-shadow: 0 0 16px rgba(240,123,59,0.55)"></span>
+<span class="sa-f sa-f5" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.55); box-shadow: 0 0 16px rgba(240,123,59,0.55)"></span>
+<span class="sa-f sa-f6" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22); box-shadow: 0 0 16px rgba(240,123,59,0.55)"></span>
+</span>
+</span>
+</span>
+<span>its <em style="font-style: italic; font-weight: 300; color: #F07B3B">salt</em>.</span>
+</h1>
+<p style="margin: 24px 0 0; font-size: 16px; line-height: 1.6; color: #C2B5A5">Saltancy designs and builds web apps, backends and mobile apps: engineered properly, shipped quickly, and easy to change once they're live.</p>
+<div style="margin-top: 26px; width: 100%; display: flex; flex-direction: column; gap: 10px; text-shadow: none">
+<a href="#contact" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 999px; background: #F07B3B; color: #1A110A; font-weight: 600; font-size: 15px">Start a project</a>
+<a href="#approach" style="display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 999px; border: 1px solid rgba(239,226,210,.2); color: #EFE6DA; font-size: 15px">See how we work</a>
+</div>
+</section>
+
+<section id="services" data-sa-anchor="services" style="position: relative; z-index: 2; height: 780px; padding: 56px 24px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px; text-shadow: 0 1px 22px rgba(12,9,7,.92)">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center">
+<p style="margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; color: #A89B8B">WHAT WE BUILD</p>
+<h2 style="margin: 0; font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 36px; line-height: 1.06; letter-spacing: -0.03em; color: #F7EFE5">Three things, done <em style="font-style: italic; font-weight: 300; color: #F07B3B">properly</em>.</h2>
+</div>
+<div style="display: flex; flex-direction: column; border-bottom: 1px solid rgba(239,226,210,.12)">
+<article style="display: flex; flex-direction: column; gap: 10px; padding: 24px 0; border-top: 1px solid rgba(239,226,210,.12)">
+<div style="display: flex; align-items: baseline; gap: 14px"><span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: #F07B3B">01</span><h3 style="margin: 0; font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 28px; letter-spacing: -0.02em; color: #F7EFE5">Web applications</h3></div>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #BDB0A0">Fast, accessible sites and web apps, from the first landing page to the signed-in product behind it.</p>
+<p style="margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #A89B8B">Next.js · React · TypeScript</p>
+</article>
+<article style="display: flex; flex-direction: column; gap: 10px; padding: 24px 0; border-top: 1px solid rgba(239,226,210,.12)">
+<div style="display: flex; align-items: baseline; gap: 14px"><span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: #F07B3B">02</span><h3 style="margin: 0; font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 28px; letter-spacing: -0.02em; color: #F7EFE5">Backend systems</h3></div>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #BDB0A0">The part nobody sees and everything relies on: APIs, databases, sign-in, and the cloud it all runs on.</p>
+<p style="margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #A89B8B">APIs · Postgres · Cloud</p>
+</article>
+<article style="display: flex; flex-direction: column; gap: 10px; padding: 24px 0; border-top: 1px solid rgba(239,226,210,.12)">
+<div style="display: flex; align-items: baseline; gap: 14px"><span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: #F07B3B">03</span><h3 style="margin: 0; font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 28px; letter-spacing: -0.02em; color: #F7EFE5">Mobile apps</h3></div>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #BDB0A0">One codebase for iPhone and Android that still feels at home on both.</p>
+<p style="margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #A89B8B">React Native · Offline-first</p>
+</article>
+</div>
+</section>
+
+<section id="approach" style="position: relative; z-index: 2; height: 820px; padding: 56px 24px 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 20px; text-shadow: 0 1px 22px rgba(12,9,7,.92)">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center">
+<p style="margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; color: #A89B8B">HOW A PROJECT RUNS</p>
+<h2 style="margin: 0; font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 36px; line-height: 1.06; letter-spacing: -0.03em; color: #F7EFE5">Built one <em style="font-style: italic; font-weight: 300; color: #F07B3B">layer</em> at a time.</h2>
+</div>
+<div data-sa-anchor="grow" aria-hidden="true" style="position: relative; width: 260px; height: 240px; display: flex; align-items: center; justify-content: center; perspective: 900px">
+<span class="sa-spin2" style="position: relative; display: block; width: 60px; height: 60px; transform-style: preserve-3d; animation-delay: -6s">
+<span class="sa-um" style="position: absolute; left: 0; top: 0; display: block; width: 60px; height: 60px; transform-style: preserve-3d; transform: translate3d(-30px, 30px, 30px) scale(var(--sa-c1s, 1)); transition: transform .9s cubic-bezier(.2,.8,.2,1)"><span class="sa-f sa-f1 sa-g"></span><span class="sa-f sa-f2 sa-g"></span><span class="sa-f sa-f3 sa-g"></span><span class="sa-f sa-f4 sa-g"></span><span class="sa-f sa-f5 sa-gt"></span><span class="sa-f sa-f6 sa-gb"></span></span>
+<span class="sa-um" style="position: absolute; left: 0; top: 0; display: block; width: 60px; height: 60px; transform-style: preserve-3d; transform: translate3d(30px, 30px, 30px) scale(var(--sa-c2s, 1)); transition: transform .9s cubic-bezier(.2,.8,.2,1)"><span class="sa-f sa-f1 sa-g"></span><span class="sa-f sa-f2 sa-g"></span><span class="sa-f sa-f3 sa-g"></span><span class="sa-f sa-f4 sa-g"></span><span class="sa-f sa-f5 sa-gt"></span><span class="sa-f sa-f6 sa-gb"></span></span>
+<span class="sa-um" style="position: absolute; left: 0; top: 0; display: block; width: 60px; height: 60px; transform-style: preserve-3d; transform: translate3d(-30px, 30px, -30px) scale(var(--sa-c3s, 1)); transition: transform .9s cubic-bezier(.2,.8,.2,1)"><span class="sa-f sa-f1 sa-g"></span><span class="sa-f sa-f2 sa-g"></span><span class="sa-f sa-f3 sa-g"></span><span class="sa-f sa-f4 sa-g"></span><span class="sa-f sa-f5 sa-gt"></span><span class="sa-f sa-f6 sa-gb"></span></span>
+<span class="sa-um" style="position: absolute; left: 0; top: 0; display: block; width: 60px; height: 60px; transform-style: preserve-3d; transform: translate3d(30px, 30px, -30px) scale(var(--sa-c4s, 1)); transition: transform .9s cubic-bezier(.2,.8,.2,1) .12s"><span class="sa-f sa-f1 sa-g"></span><span class="sa-f sa-f2 sa-g"></span><span class="sa-f sa-f3 sa-g"></span><span class="sa-f sa-f4 sa-g"></span><span class="sa-f sa-f5 sa-gt"></span><span class="sa-f sa-f6 sa-gb"></span></span>
+<span class="sa-um" style="position: absolute; left: 0; top: 0; display: block; width: 60px; height: 60px; transform-style: preserve-3d; transform: translate3d(-30px, -30px, 30px) scale(var(--sa-c5s, 1)); transition: transform .9s cubic-bezier(.2,.8,.2,1)"><span class="sa-f sa-f1" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f2" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f3" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f4" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f5" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.55)"></span><span class="sa-f sa-f6" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span></span>
+<span class="sa-um" style="position: absolute; left: 0; top: 0; display: block; width: 60px; height: 60px; transform-style: preserve-3d; transform: translate3d(30px, -30px, 30px) scale(var(--sa-c6s, 1)); transition: transform .9s cubic-bezier(.2,.8,.2,1) .08s"><span class="sa-f sa-f1" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f2" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f3" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f4" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f5" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.55)"></span><span class="sa-f sa-f6" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span></span>
+<span class="sa-um" style="position: absolute; left: 0; top: 0; display: block; width: 60px; height: 60px; transform-style: preserve-3d; transform: translate3d(-30px, -30px, -30px) scale(var(--sa-c7s, 1)); transition: transform .9s cubic-bezier(.2,.8,.2,1) .16s"><span class="sa-f sa-f1" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f2" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f3" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f4" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f5" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.55)"></span><span class="sa-f sa-f6" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span></span>
+<span class="sa-um" style="position: absolute; left: 0; top: 0; display: block; width: 60px; height: 60px; transform-style: preserve-3d; transform: translate3d(30px, -30px, -30px) scale(var(--sa-c8s, 1)); transition: transform .9s cubic-bezier(.2,.8,.2,1) .24s"><span class="sa-f sa-f1" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f2" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f3" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f4" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span><span class="sa-f sa-f5" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.55)"></span><span class="sa-f sa-f6" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span></span>
+</span>
+</div>
+<div style="width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 16px">
+<div style="display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 2px solid var(--sa-s1line, rgba(239,226,210,.14)); opacity: var(--sa-s1op, 1); transition: opacity .4s ease, border-color .4s ease">
+<button type="button" class="sa-step" aria-pressed="false" data-sa-pick="1" style="display: flex; align-items: baseline; gap: 8px; min-height: 44px"><span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #F07B3B">01</span><span style="font-family: 'Fraunces', Georgia, serif; font-size: 22px; letter-spacing: -0.02em; color: #F7EFE5">Discover</span></button>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #BDB0A0">We pin down what you need and what done looks like.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 2px solid var(--sa-s2line, rgba(239,226,210,.14)); opacity: var(--sa-s2op, 1); transition: opacity .4s ease, border-color .4s ease">
+<button type="button" class="sa-step" aria-pressed="false" data-sa-pick="2" style="display: flex; align-items: baseline; gap: 8px; min-height: 44px"><span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #F07B3B">02</span><span style="font-family: 'Fraunces', Georgia, serif; font-size: 22px; letter-spacing: -0.02em; color: #F7EFE5">Build</span></button>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #BDB0A0">Short cycles, each ending in a preview you can try.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 2px solid var(--sa-s3line, rgba(239,226,210,.14)); opacity: var(--sa-s3op, 1); transition: opacity .4s ease, border-color .4s ease">
+<button type="button" class="sa-step" aria-pressed="false" data-sa-pick="3" style="display: flex; align-items: baseline; gap: 8px; min-height: 44px"><span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #F07B3B">03</span><span style="font-family: 'Fraunces', Georgia, serif; font-size: 22px; letter-spacing: -0.02em; color: #F7EFE5">Ship</span></button>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #BDB0A0">Live on real traffic, with us close by while it settles.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding-top: 12px; border-top: 2px solid var(--sa-s4line, rgba(239,226,210,.14)); opacity: var(--sa-s4op, 1); transition: opacity .4s ease, border-color .4s ease">
+<button type="button" class="sa-step" aria-pressed="false" data-sa-pick="4" style="display: flex; align-items: baseline; gap: 8px; min-height: 44px"><span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #F07B3B">04</span><span style="font-family: 'Fraunces', Georgia, serif; font-size: 22px; letter-spacing: -0.02em; color: #F7EFE5">Look after</span></button>
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #BDB0A0">Fixes and new features whenever you ask.</p>
+</div>
+</div>
+</section>
+
+<section id="hub" style="position: relative; z-index: 2; height: 720px; padding: 40px 16px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px">
+<div style="padding: 0 8px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; text-shadow: 0 1px 22px rgba(12,9,7,.92)">
+<p style="margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; color: #A89B8B">YOUR PROJECT HUB</p>
+<h2 style="margin: 0; font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 34px; line-height: 1.06; letter-spacing: -0.03em; color: #F7EFE5">Everything about your project, in <em style="font-style: italic; font-weight: 300; color: #F07B3B">one place</em>.</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #BDB0A0">Follow progress, open the latest preview and ask for changes, all after one sign-in.</p>
+</div>
+<div style="perspective: 1200px">
+<figure data-sa-anchor="hub" style="margin: 0; display: flex; flex-direction: column; gap: 16px; padding: 18px; border-radius: 20px; background: rgba(20,15,11,.7); border: 1px solid rgba(239,226,210,.14); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 40px 100px rgba(0,0,0,.55); transform: rotateX(10deg); transform-origin: 50% 0%; -webkit-mask-image: linear-gradient(to bottom, #000 84%, transparent 100%); mask-image: linear-gradient(to bottom, #000 84%, transparent 100%)">
+<figcaption class="sa-sr">Example of the project hub a client sees after signing in.</figcaption>
+<div aria-hidden="true" style="display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 10px">
+<span style="font-family: 'Fraunces', Georgia, serif; font-size: 20px; color: #F7EFE5">Clinic booking app</span>
+<span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 999px; background: rgba(240,123,59,0.22); font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; color: #F07B3B"><span class="sa-blink" style="width: 5px; height: 5px; border-radius: 50%; background: #F07B3B"></span>building</span>
+</div>
+<div style="display: flex; gap: 8px">
+<div style="flex: 1; display: flex; flex-direction: column; gap: 6px"><span style="display: block; height: 5px; border-radius: 5px; background: #D9CFC2"></span><span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; color: #8F8272">phase 1 · done</span></div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 6px"><span style="display: block; height: 5px; border-radius: 5px; background: rgba(239,226,210,.1); overflow: hidden"><span style="display: block; width: 62%; height: 100%; background: #F07B3B"></span></span><span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; color: #F07B3B">phase 2 · now</span></div>
+<div style="flex: 1; display: flex; flex-direction: column; gap: 6px"><span style="display: block; height: 5px; border-radius: 5px; border: 1px dashed rgba(239,226,210,.25); box-sizing: border-box"></span><span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; color: #8F8272">phase 3 · next</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 11px; border: 1px solid rgba(239,226,210,.10); font-size: 13px; color: #EFE6DA">Take a deposit at booking<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; color: #F07B3B">in progress</span></span>
+<span style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 11px; border: 1px solid rgba(239,226,210,.10); font-size: 13px; color: #EFE6DA">Date picker cut off on iPhone<span style="font-family: 'Geist Mono', ui-monospace, monospace; font-size: 10px; color: #A89B8B">done</span></span>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; border-radius: 12px; border: 1px solid rgba(239,226,210,.14); background: rgba(10,8,6,.45)">
+<span style="flex: 1; font-size: 13px; color: #8F8272">Describe a change…</span>
+<span style="display: inline-flex; align-items: center; padding: 9px 12px; border-radius: 9px; background: #F07B3B; font-size: 12px; font-weight: 600; color: #1A110A">Send</span>
+</div>
+</div>
+</figure>
+</div>
+</section>
+
+<section id="contact" style="position: relative; z-index: 2; height: 560px; padding: 56px 24px 0; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; text-align: center; text-shadow: 0 1px 22px rgba(12,9,7,.92)">
+<p style="margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.08em; color: #A89B8B">START</p>
+<h2 style="margin: 16px 0 0; font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 42px; line-height: 1.04; letter-spacing: -0.035em; color: #F7EFE5">Got something<br>to <em style="font-style: italic; font-weight: 300; color: #F07B3B">build</em>?</h2>
+<p style="margin: 16px 0 0; font-size: 15px; line-height: 1.6; color: #BDB0A0">Tell us what you're working on. We'll come back with a plan, not a sales call.</p>
+<a href="#contact" style="margin-top: 22px; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 999px; background: #F07B3B; color: #1A110A; font-weight: 600; font-size: 15px; text-shadow: none">Start a project</a>
+<span data-sa-anchor="seed" aria-hidden="true" style="margin-top: 44px; display: flex; align-items: center; justify-content: center; width: 100px; height: 100px; perspective: 500px">
+<span class="sa-sm sa-seed" style="position: relative; display: block; width: 28px; height: 28px; transform-style: preserve-3d; animation-delay: -2s">
+<span class="sa-f sa-f1" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.35)"></span><span class="sa-f sa-f2" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.35)"></span><span class="sa-f sa-f3" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.35)"></span><span class="sa-f sa-f4" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.35)"></span><span class="sa-f sa-f5" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.55)"></span><span class="sa-f sa-f6" style="border: 1px solid rgba(240,123,59,0.75); background-color: rgba(240,123,59,0.22)"></span>
+</span>
+</span>
+</section>
+
+<footer style="position: relative; z-index: 2; height: 140px; padding: 28px 24px; border-top: 1px solid rgba(239,226,210,.08); box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="display: inline-flex; align-items: center; gap: 8px; font-family: 'Fraunces', Georgia, serif; font-size: 18px; color: #F7EFE5"><svg width="16" height="18" viewBox="0 0 26 28" aria-hidden="true"><path d="M13 1 L25 8 L13 15 L1 8 Z" style="fill: #F07B3B"></path><path d="M1 8 L13 15 L13 27 L1 20 Z" style="fill: #3A2E25"></path><path d="M25 8 L13 15 L13 27 L25 20 Z" style="fill: #5A4636"></path></svg><span>Saltancy<span style="color: #F07B3B">.</span></span></span>
+<div style="display: flex; gap: 18px; font-size: 13px"><a href="#privacy" style="color: #BDB0A0">Privacy</a><a href="#terms" style="color: #BDB0A0">Terms</a></div>
+</div>
+<p style="margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; color: #8F8272">© 2026 Saltancy</p>
+</footer>
+
+</div>
+<script>
+class DCLogic {
+  constructor(props) { this.props = props || {}; this.state = null; }
+  setState(s) { this.state = Object.assign({}, this.state || {}, s); this._apply(); }
+  forceUpdate() { this._apply(); }
+}
+class Component extends DCLogic {
+renderVals() {
+const accent = this.props.accent ?? '#F07B3B';
+const motion = this.props.motion ?? true;
+const st = this.state || {};
+const stage = st.stage || (motion ? 1 : 4);
+if (!this._refs) {
+this._refs = {
+root: (el) => { if (el) this._root = el; },
+canvas: (el) => { if (el) this._canvas = el; }
+};
+}
+if (!this._picks) {
+this._picks = [1, 2, 3, 4].map((k) => () => { this._hold = Date.now(); this.setState({ stage: k }); });
+}
+const rgb = this._rgb(accent);
+const a = (al) => 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + al + ')';
+const sc = (n) => (stage >= n ? 1 : 0);
+const dim = 'rgba(239,226,210,.14)';
+return {
+accent: accent,
+motionClass: motion ? '' : 'sa-still',
+rootRef: this._refs.root,
+canvasRef: this._refs.canvas,
+accentA22: a(0.22), accentA35: a(0.35), accentA55: a(0.55), accentA75: a(0.75),
+c1s: sc(1), c2s: sc(2), c3s: sc(3), c4s: sc(3), c5s: sc(4), c6s: sc(4), c7s: sc(4), c8s: sc(4),
+s1Line: stage === 1 ? accent : dim, s2Line: stage === 2 ? accent : dim, s3Line: stage === 3 ? accent : dim, s4Line: stage === 4 ? accent : dim,
+s1Op: stage === 1 ? 1 : 0.5, s2Op: stage === 2 ? 1 : 0.5, s3Op: stage === 3 ? 1 : 0.5, s4Op: stage === 4 ? 1 : 0.5,
+s1Pressed: stage === 1 ? 'true' : 'false', s2Pressed: stage === 2 ? 'true' : 'false', s3Pressed: stage === 3 ? 'true' : 'false', s4Pressed: stage === 4 ? 'true' : 'false',
+pick1: this._picks[0], pick2: this._picks[1], pick3: this._picks[2], pick4: this._picks[3]
+};
+}
+componentDidMount() {
+this._alive = true;
+this._t0 = (window.performance && performance.now()) || Date.now();
+try { this._reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { this._reduced = false; }
+this._boot();
+this._tick = 0;
+this._cycle = setInterval(() => {
+if (!this._alive || this._reduced || !(this.props.motion ?? true)) return;
+if (Date.now() - (this._hold || 0) < 9000) return;
+this._tick += 1;
+const seq = [1, 2, 3, 4, 4, 4];
+this.setState({ stage: seq[this._tick % seq.length] });
+}, 2300);
+}
+componentDidUpdate(prev) {
+const was = (prev && prev.motion) ?? true;
+const now = this.props.motion ?? true;
+if (was !== now) this._kick();
+}
+componentWillUnmount() {
+this._alive = false;
+if (this._raf) cancelAnimationFrame(this._raf);
+if (this._ro) this._ro.disconnect();
+if (this._cycle) clearInterval(this._cycle);
+}
+_rgb(hex) {
+const hx = String(hex || '#F07B3B').replace('#', '');
+const full = hx.length === 3 ? hx.split('').map((c) => c + c).join('') : hx;
+const n = parseInt(full.slice(0, 6), 16);
+return isNaN(n) ? [240, 123, 59] : [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+_boot() {
+const root = this._root || document.querySelector('[data-sa-root="ember-mobile"]');
+const cv = this._canvas || document.querySelector('[data-sa-stream="ember-mobile"]');
+if (!root || !cv) {
+this._tries = (this._tries || 0) + 1;
+if (this._tries < 60 && this._alive) setTimeout(() => this._boot(), 120);
+return;
+}
+this._root = root; this._canvas = cv;
+this._ctx = cv.getContext('2d');
+if (!this._ctx) return;
+this._sprite = this._makeSprite();
+this._layout();
+if (typeof ResizeObserver !== 'undefined') {
+this._ro = new ResizeObserver(() => { this._layout(); this._kick(); });
+this._ro.observe(root);
+}
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (this._alive) { this._layout(); this._kick(); } });
+this._kick();
+}
+_makeSprite() {
+const c = document.createElement('canvas');
+c.width = 64; c.height = 64;
+const g = c.getContext('2d');
+const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+gr.addColorStop(0, 'rgba(255,246,232,1)');
+gr.addColorStop(0.18, 'rgba(255,214,170,0.85)');
+gr.addColorStop(0.45, 'rgba(240,123,59,0.28)');
+gr.addColorStop(1, 'rgba(240,123,59,0)');
+g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+return c;
+}
+_cr(p0, p1, p2, p3, u) {
+const d = (p, q) => Math.max(1e-4, Math.pow(Math.hypot(q.x - p.x, q.y - p.y), 0.5));
+const t0 = 0, t1 = t0 + d(p0, p1), t2 = t1 + d(p1, p2), t3 = t2 + d(p2, p3);
+const t = t1 + (t2 - t1) * u;
+const L = (p, q, ta, tb) => { const w = (tb - ta) || 1e-4; return { x: ((tb - t) * p.x + (t - ta) * q.x) / w, y: ((tb - t) * p.y + (t - ta) * q.y) / w }; };
+const A1 = L(p0, p1, t0, t1), A2 = L(p1, p2, t1, t2), A3 = L(p2, p3, t2, t3);
+const B1 = L(A1, A2, t0, t2), B2 = L(A2, A3, t1, t3);
+return L(B1, B2, t1, t2);
+}
+_layout() {
+const root = this._root; if (!root || !this._canvas) return;
+const W = root.offsetWidth || 390, H = root.offsetHeight || 3800;
+const rr = root.getBoundingClientRect();
+const k = (rr.width / W) || 1;
+const find = (name) => {
+const el = root.querySelector('[data-sa-anchor="' + name + '"]');
+if (!el) return null;
+const r = el.getBoundingClientRect();
+return { x: (r.left - rr.left + r.width / 2) / k, y: (r.top - rr.top + r.height / 2) / k, top: (r.top - rr.top) / k, h: r.height / k };
+};
+const c1 = find('hero') || { x: W / 2, y: 280 };
+const sv = find('services') || { top: 780, h: 780 };
+const c2 = find('grow') || { x: W / 2, y: H * 0.47 };
+const hub = find('hub') || { top: H * 0.66, h: 380 };
+const c3 = find('seed') || { x: W / 2, y: H - 230 };
+const Lm = Math.max(40, Math.min(W * 0.13, 200));
+const o1 = Math.min(170, W * 0.3), o2 = Math.min(210, W * 0.3), o3 = Math.min(160, W * 0.28);
+const rs = W < 700 ? 0.42 : 1;
+const K = [
+[W + 60, c1.y, 2],
+[c1.x + o1, c1.y, 3],
+[c1.x, c1.y, 2],
+[c1.x - o1, c1.y + 24, 8],
+[Lm * 0.6, c1.y + 260, 56 * rs],
+[W * 0.2, sv.top + sv.h * 0.35, 92 * rs],
+[W * 0.8, sv.top + sv.h * 0.9, 110 * rs],
+[c2.x + o2 + 20, c2.y - 60, 28 * rs],
+[c2.x, c2.y, 2],
+[c2.x - o2 - 20, c2.y + 60, 28 * rs],
+[Lm * 0.6, hub.top + 30, 96 * rs],
+[W - Lm * 0.6, hub.top + hub.h * 0.65, 120 * rs],
+[W * 0.86, c3.y - 160, 70 * rs],
+[c3.x + o3, c3.y, 8],
+[c3.x, c3.y, 1]
+];
+const P = K.map((q) => ({ x: q[0], y: q[1], r: q[2] }));
+const E = [P[0]].concat(P, [P[P.length - 1]]);
+const dense = [];
+for (let i = 1; i < E.length - 2; i++) {
+const p0 = E[i - 1], p1 = E[i], p2 = E[i + 1], p3 = E[i + 2];
+const n = Math.max(6, Math.ceil(Math.hypot(p2.x - p1.x, p2.y - p1.y) / 4));
+for (let j = 0; j < n; j++) {
+const u = j / n;
+const q = this._cr(p0, p1, p2, p3, u);
+const e = u * u * (3 - 2 * u);
+dense.push({ x: q.x, y: q.y, r: p1.r + (p2.r - p1.r) * e });
+}
+}
+const lp = P[P.length - 1];
+dense.push({ x: lp.x, y: lp.y, r: lp.r });
+const STEP = W < 600 ? 5 : 6;
+const S = [{ x: dense[0].x, y: dense[0].y, r: dense[0].r }];
+let need = STEP;
+for (let i = 1; i < dense.length; i++) {
+let ax = dense[i - 1].x, ay = dense[i - 1].y, ar = dense[i - 1].r;
+const bx = dense[i].x, by = dense[i].y, br = dense[i].r;
+let d = Math.hypot(bx - ax, by - ay);
+while (d >= need && d > 0) {
+const f = need / d;
+ax += (bx - ax) * f; ay += (by - ay) * f; ar += (br - ar) * f;
+S.push({ x: ax, y: ay, r: ar });
+d = Math.hypot(bx - ax, by - ay);
+need = STEP;
+}
+need -= d;
+}
+const g = (dx, dy, s) => Math.exp(-(dx * dx + dy * dy) / (s * s));
+const R1 = W < 700 ? 150 : 230, R3 = W < 700 ? 120 : 190;
+let iC1 = 0, best = Infinity;
+for (let i = 0; i < S.length; i++) {
+const p = S[i];
+const a = S[Math.max(0, i - 2)], b = S[Math.min(S.length - 1, i + 2)];
+let tx = b.x - a.x, ty = b.y - a.y;
+const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+p.nx = -ty; p.ny = tx; p.s = i * STEP;
+const dd = (p.x - c1.x) * (p.x - c1.x) + (p.y - c1.y) * (p.y - c1.y);
+if (dd < best) { best = dd; iC1 = i; }
+}
+for (let i = 0; i < S.length; i++) {
+const p = S[i];
+let I = 0.34 + 1.05 * g(p.x - c1.x, p.y - c1.y, R1) + 0.95 * g(p.x - c2.x, p.y - c2.y, R1) + 0.9 * g(p.x - c3.x, p.y - c3.y, R3);
+if (i < iC1) I += 0.45;
+const toEnd = (S.length - 1 - i) * STEP;
+if (toEnd < 40) I *= Math.max(0, toEnd / 40);
+p.I = Math.min(1.7, I);
+}
+this._S = S; this._W = W; this._H = H; this._step = STEP; this._total = S.length * STEP;
+this._c = [c1, c2, c3];
+this._glowR = W < 700 ? [150, 140, 100] : [230, 210, 150];
+const N = W < 600 ? 14 : 26;
+let seed = 7;
+const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+this._strands = [];
+for (let i = 0; i < N; i++) {
+this._strands.push({ ph: (i / N) * Math.PI * 2 + rnd() * 0.3, rj: 0.55 + rnd() * 0.55, tw: 0.92 + rnd() * 0.16, w: 0.5 + rnd() * 0.8, kind: i % 7 === 3 ? 3 : (i % 4 === 0 ? 1 : (i % 3 === 1 ? 2 : 0)) });
+}
+this._packets = [];
+const M = W < 600 ? 10 : 22;
+for (let i = 0; i < M; i++) this._packets.push({ k: Math.floor(rnd() * N), s0: rnd() * this._total, v: 90 + rnd() * 110, z: 0.5 + rnd() * 0.6 });
+const q = Math.max(0.5, Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(7.2e6 / (W * H))));
+const pw = Math.max(1, Math.round(W * q)), ph = Math.max(1, Math.round(H * q));
+if (this._canvas.width !== pw || this._canvas.height !== ph) { this._canvas.width = pw; this._canvas.height = ph; }
+this._q = q;
+}
+_kick() {
+if (!this._ctx || !this._alive) return;
+const moving = (this.props.motion ?? true) && !this._reduced;
+if (moving) {
+if (!this._raf) { this._last = 0; this._raf = requestAnimationFrame((n) => this._loop(n)); }
+} else {
+if (this._raf) { cancelAnimationFrame(this._raf); this._raf = null; }
+this._draw(7.5);
+}
+}
+_loop(now) {
+this._raf = null;
+if (!this._alive) return;
+const moving = (this.props.motion ?? true) && !this._reduced;
+if (!moving) { this._draw(7.5); return; }
+if (!this._last || now - this._last > 30) { this._last = now; this._draw((now - this._t0) / 1000 + 7.5); }
+this._raf = requestAnimationFrame((n) => this._loop(n));
+}
+_draw(t) {
+const ctx = this._ctx, S = this._S;
+if (!ctx || !S || !S.length) return;
+const W = this._W, H = this._H, q = this._q;
+let top = 0, vh = H;
+try {
+const rr = this._root.getBoundingClientRect();
+const k = (rr.width / W) || 1;
+const ih = (window.innerHeight || H) / k;
+top = Math.max(0, -rr.top / k);
+vh = Math.min(H - top, ih);
+if (!(vh > 0)) { top = 0; vh = H; }
+} catch (e) { top = 0; vh = H; }
+const y0 = top - 300, y1 = top + vh + 300;
+ctx.setTransform(q, 0, 0, q, 0, 0);
+ctx.globalCompositeOperation = 'source-over';
+ctx.globalAlpha = 1;
+ctx.clearRect(0, Math.max(0, top - 4), W, vh + 8);
+ctx.globalCompositeOperation = 'lighter';
+ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+const sp = this._sprite;
+const glow = (c, R, amp) => {
+if (c.y + R < y0 || c.y - R > y1) return;
+const r = R * (0.9 + 0.1 * Math.sin(t * 1.3 + c.x * 0.01));
+ctx.globalAlpha = amp;
+ctx.drawImage(sp, c.x - r, c.y - r, r * 2, r * 2);
+};
+const GR = this._glowR;
+glow(this._c[0], GR[0], 0.55); glow(this._c[1], GR[1], 0.5); glow(this._c[2], GR[2], 0.65);
+ctx.globalAlpha = 1;
+const acc = this._rgb(this.props.accent ?? '#F07B3B');
+const COLS = [[242, 161, 94], [255, 226, 190], acc, [207, 224, 238]];
+const BACK = [150, 66, 26];
+const TW = (Math.PI * 2) / (W < 700 ? 300 : 460), OM = 0.42;
+const strands = this._strands;
+for (let si = 0; si < strands.length; si++) {
+const st = strands[si];
+const col = COLS[st.kind];
+let pts = [], front = null, sumI = 0;
+const flush = () => {
+if (pts.length < 4) return;
+const I = sumI / (pts.length / 2);
+if (front) {
+ctx.strokeStyle = 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + Math.min(0.5, 0.07 * I).toFixed(3) + ')';
+ctx.lineWidth = 5 * st.w + 2;
+ctx.beginPath(); ctx.moveTo(pts[0], pts[1]);
+for (let j = 2; j < pts.length; j += 2) ctx.lineTo(pts[j], pts[j + 1]);
+ctx.stroke();
+ctx.strokeStyle = 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + Math.min(1, 0.5 * I).toFixed(3) + ')';
+ctx.lineWidth = 0.5 + st.w;
+} else {
+ctx.strokeStyle = 'rgba(' + BACK[0] + ',' + BACK[1] + ',' + BACK[2] + ',' + Math.min(0.7, 0.26 * I).toFixed(3) + ')';
+ctx.lineWidth = 0.35 + st.w * 0.6;
+}
+ctx.beginPath(); ctx.moveTo(pts[0], pts[1]);
+for (let j = 2; j < pts.length; j += 2) ctx.lineTo(pts[j], pts[j + 1]);
+ctx.stroke();
+};
+for (let i = 0; i < S.length; i++) {
+const p = S[i];
+if (p.y < y0 || p.y > y1) {
+if (pts.length) { flush(); pts = []; sumI = 0; front = null; }
+continue;
+}
+const th = st.ph + p.s * TW * st.tw + t * OM;
+const c = Math.cos(th), sn = Math.sin(th);
+const rad = p.r * st.rj;
+const x = p.x + p.nx * rad * c;
+const y = p.y + p.ny * rad * c - sn * rad * 0.16;
+const f = sn >= 0;
+if (front === null) front = f;
+if (f !== front || pts.length >= 48) {
+pts.push(x, y); sumI += p.I;
+flush();
+pts = [x, y]; sumI = p.I; front = f;
+continue;
+}
+pts.push(x, y); sumI += p.I;
+}
+flush();
+}
+for (let i = 0; i < this._packets.length; i++) {
+const pk = this._packets[i];
+const st = strands[pk.k % strands.length];
+const s = (pk.s0 + pk.v * t) % this._total;
+const idx = Math.min(S.length - 1, Math.floor(s / this._step));
+const p = S[idx];
+if (!p || p.y < y0 || p.y > y1) continue;
+const th = st.ph + p.s * TW * st.tw + t * OM;
+const c = Math.cos(th), sn = Math.sin(th);
+if (sn < -0.2) continue;
+const rad = p.r * st.rj;
+const x = p.x + p.nx * rad * c, y = p.y + p.ny * rad * c - sn * rad * 0.16;
+const sz = (8 + 6 * pk.z) * (0.75 + 0.35 * sn);
+ctx.globalAlpha = Math.max(0, Math.min(1, (0.55 + 0.4 * sn) * Math.min(1, p.I)));
+ctx.drawImage(sp, x - sz, y - sz, sz * 2, sz * 2);
+}
+ctx.globalAlpha = 1;
+ctx.globalCompositeOperation = 'source-over';
+}
+}
+Component.prototype._apply = function () {
+  const v = this.renderVals();
+  const root = this._root;
+  if (!root) return;
+  for (let i = 1; i <= 8; i++) root.style.setProperty('--sa-c' + i + 's', v['c' + i + 's']);
+  for (let k = 1; k <= 4; k++) {
+    root.style.setProperty('--sa-s' + k + 'line', v['s' + k + 'Line']);
+    root.style.setProperty('--sa-s' + k + 'op', v['s' + k + 'Op']);
+    const b = root.querySelector('[data-sa-pick="' + k + '"]');
+    if (b) b.setAttribute('aria-pressed', v['s' + k + 'Pressed']);
+  }
+};
+(function () {
+  const start = function () {
+    const root = document.querySelector('[data-sa-root]');
+    const c = new Component({ accent: '#F07B3B', motion: true });
+    c._root = root;
+    c._canvas = root.querySelector('[data-sa-stream]');
+    c.renderVals();
+    c._apply();
+    root.querySelectorAll('[data-sa-pick]').forEach(function (b) {
+      const k = parseInt(b.getAttribute('data-sa-pick'), 10);
+      b.addEventListener('click', function () { c._picks[k - 1](); });
+    });
+    c.componentDidMount();
+    window.__saltancy = c;
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
+</script>
+</body>
+</html>
