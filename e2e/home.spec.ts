@@ -1,9 +1,19 @@
 import { mkdirSync } from "node:fs";
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { MOCK_RESEND_KEY, MOCK_RESEND_URL } from "../playwright.config";
 
 const HUB_ON = process.env.SALTANCY_PROJECT_HUB === "on";
+const ANALYTICS_TOKEN = process.env.SALTANCY_WEB_ANALYTICS_TOKEN;
 const SHOTS = "screenshots";
+
+// Test visits must not count as page views, so the analytics beacon and its reports are stubbed.
+test.beforeEach(async ({ page }) => {
+  await page.route("https://static.cloudflareinsights.com/**", (route) =>
+    route.fulfill({ status: 200, contentType: "text/javascript", body: "" })
+  );
+  await page.route("https://cloudflareinsights.com/**", (route) => route.fulfill({ status: 204 }));
+});
 
 function collectErrors(page: Page) {
   const errors: string[] = [];
@@ -292,6 +302,60 @@ test.describe("home page", () => {
     } else {
       expect(counts).toEqual({ hubSection: 0, signInLinks: 0, signInText: 0, hubNavLinks: 0 });
     }
+  });
+
+  test(`analytics beacon (${ANALYTICS_TOKEN ? "token set" : "no token"}): ships only with a site token`, async ({
+    page,
+  }) => {
+    await open(page);
+    const beacons = await page.$$eval('script[src="https://static.cloudflareinsights.com/beacon.min.js"]', (els) =>
+      els.map((el) => ({ defer: (el as HTMLScriptElement).defer, config: el.getAttribute("data-cf-beacon") }))
+    );
+    console.log(`  beacons: ${beacons.length}`);
+    if (ANALYTICS_TOKEN) {
+      expect(beacons).toEqual([{ defer: true, config: JSON.stringify({ token: ANALYTICS_TOKEN }) }]);
+    } else {
+      expect(beacons).toEqual([]);
+    }
+  });
+});
+
+test.describe("contact form", () => {
+  test.skip(!!process.env.E2E_BASE_URL, "A deployed site sends real email; only local sites use the mock Resend API.");
+
+  async function submit(page: Page) {
+    await open(page);
+    await page.locator("#top button", { hasText: "Start a project" }).click();
+    const dialog = page.getByRole("dialog");
+    await dialog.locator("#name").fill("Test Lead");
+    await dialog.locator("#email").fill("lead@example.com");
+    await dialog.locator("#message").fill("An end-to-end check of the contact form.");
+    await dialog.getByRole("button", { name: "Send message" }).click();
+    return dialog;
+  }
+
+  test("a lead goes out through Resend, and a refused send says so", async ({ page, request }) => {
+    await request.post(`${MOCK_RESEND_URL}/__mock`, { data: { refuse: false } });
+    const dialog = await submit(page);
+    await expect(dialog.getByRole("status")).toContainText("You're in.");
+
+    const { sent } = await (await request.get(`${MOCK_RESEND_URL}/__mock`)).json();
+    console.log(`  sent: ${JSON.stringify(sent.map((s: { body: { subject: string } }) => s.body.subject))}`);
+    expect(sent).toHaveLength(1);
+    expect(sent[0].authorization).toBe(`Bearer ${MOCK_RESEND_KEY}`);
+    expect(sent[0].body).toMatchObject({
+      from: "Saltancy Website <info@saltancy.com>",
+      to: expect.stringContaining("@"),
+      subject: "New Consultancy Lead from Test Lead",
+      text: "Name: Test Lead\nEmail: lead@example.com\n\nMessage:\nAn end-to-end check of the contact form.",
+    });
+
+    // Resend refusing the send (say, the domain lost its verification) must not read as success.
+    await request.post(`${MOCK_RESEND_URL}/__mock`, { data: { refuse: true } });
+    const refused = await submit(page);
+    await expect(refused.getByText("Something didn't connect. Please try again in a moment.")).toBeVisible();
+    await expect(refused.getByRole("status")).toHaveCount(0);
+    expect((await (await request.get(`${MOCK_RESEND_URL}/__mock`)).json()).sent).toHaveLength(1);
   });
 });
 

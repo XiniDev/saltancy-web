@@ -1,0 +1,18 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "saltancy-web",
+	"main": ".open-next/worker.js",
+	"compatibility_date": "2026-10-06",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	// Deploys run only from CI. OpenNext bundles every .env* file it finds into
+	// the Worker, so a deploy from a machine with .env.local would ship its keys.
+	"workers_dev": true,
+	"preview_urls": false,
+	"observability": {
+		"enabled": true
+	}
+}

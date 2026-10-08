@@ -1,0 +1,126 @@
+# Every push and pull request: build the Worker twice (as it ships, and with the
+# project hub flag flipped) and run the whole Playwright suite against each build
+# in workerd. A push to main then deploys the exact build that passed.
+#
+# Repository variables: SALTANCY_EMAIL, SALTANCY_WEB_ANALYTICS_TOKEN,
+# SALTANCY_PROJECT_HUB ("on" or unset), CLOUDFLARE_ACCOUNT_ID.
+# The "production" environment holds the CLOUDFLARE_API_TOKEN secret, and only
+# main can deploy to it. RESEND_API_KEY lives on the Worker as a secret, never here.
+name: Ship
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ship-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+  WRANGLER_SEND_METRICS: "false"
+
+jobs:
+  verify:
+    name: Verify (${{ matrix.build }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: true
+      matrix:
+        build: [release, hub-flipped]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Lint and typecheck
+        if: matrix.build == 'release'
+        run: |
+          npm run lint
+          npx tsc --noEmit
+
+      # .env.production feeds both `next build` and the Worker at runtime: OpenNext
+      # bundles it, so it must only ever hold public values.
+      - name: Write the build environment
+        env:
+          BUILD: ${{ matrix.build }}
+          HUB: ${{ vars.SALTANCY_PROJECT_HUB }}
+          SALTANCY_EMAIL: ${{ vars.SALTANCY_EMAIL }}
+          SALTANCY_WEB_ANALYTICS_TOKEN: ${{ vars.SALTANCY_WEB_ANALYTICS_TOKEN }}
+        run: |
+          : "${SALTANCY_EMAIL:?Set the SALTANCY_EMAIL repository variable}"
+          : "${SALTANCY_WEB_ANALYTICS_TOKEN:?Set the SALTANCY_WEB_ANALYTICS_TOKEN repository variable}"
+          hub=off
+          if [ "$HUB" = on ]; then hub=on; fi
+          if [ "$BUILD" = hub-flipped ]; then
+            if [ "$hub" = on ]; then hub=off; else hub=on; fi
+          fi
+          {
+            echo "SALTANCY_PROJECT_HUB=$hub"
+            echo "SALTANCY_EMAIL=$SALTANCY_EMAIL"
+            echo "SALTANCY_WEB_ANALYTICS_TOKEN=$SALTANCY_WEB_ANALYTICS_TOKEN"
+          } | tee .env.production >> "$GITHUB_ENV"
+          echo "Building with the project hub $hub."
+
+      - run: npm run cf:build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:worker
+
+      - name: Keep the screenshots and failure traces
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-${{ matrix.build }}
+          path: |
+            screenshots/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Hand the tested build to the deploy job
+        if: matrix.build == 'release'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: worker
+          path: .open-next/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+  deploy:
+    name: Deploy to Cloudflare
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: https://www.saltancy.com
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: worker
+          path: .open-next/
+      - name: Deploy the tested build
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx opennextjs-cloudflare deploy
