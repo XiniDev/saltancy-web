@@ -22,6 +22,7 @@ export function Logo({
       <m.svg
         viewBox="0 0 36 36"
         className="h-7 w-7 shrink-0 text-foreground"
+        data-logo-mark
         initial={play ? "hidden" : false}
         animate="show"
         variants={{ show: { transition: { staggerChildren: STAGGER * 0.4, delayChildren: 0.05 } } }}

@@ -1,48 +1,26 @@
+import { LightStream } from "@/components/ember/light-stream";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { StickyCta } from "@/components/layout/sticky-cta";
-import { Grain } from "@/components/primitives/grain";
-import { CustomCursor } from "@/components/primitives/custom-cursor";
-import { LatticeRail } from "@/components/journey/lattice-rail";
-import { ScrollJourney } from "@/components/journey/scroll-journey";
-import { JourneyPanel } from "@/components/journey/journey-panel";
 import { Hero } from "@/components/sections/hero";
 import { Services } from "@/components/sections/services";
-import { Approach } from "@/components/sections/approach";
-import { CallToAction } from "@/components/sections/cta";
+import { Process } from "@/components/sections/process";
+import { Hub } from "@/components/sections/hub";
+import { Start } from "@/components/sections/start";
+import { clientSignInHref, contactEmail, projectHubEnabled } from "@/lib/flags";
 
 export default function Home() {
   return (
     <>
-      <Grain />
-      <CustomCursor />
-      <Navbar homeHref="/#top" />
-      <LatticeRail />
-
-      <ScrollJourney>
-        <JourneyPanel className="justify-center">
-          <Hero />
-        </JourneyPanel>
-
-        <JourneyPanel className="justify-start bg-muted/40">
-          <Services />
-        </JourneyPanel>
-
-        <JourneyPanel className="justify-start bg-muted/40">
-          <Approach />
-        </JourneyPanel>
-
-        <JourneyPanel className="justify-between bg-muted/40">
-          <div className="flex flex-1 items-center">
-            <div className="w-full">
-              <CallToAction />
-            </div>
-          </div>
-          <Footer />
-        </JourneyPanel>
-      </ScrollJourney>
-
-      <StickyCta />
+      <LightStream />
+      <Navbar hubEnabled={projectHubEnabled} signInHref={clientSignInHref} />
+      <main className="relative overflow-x-clip">
+        <Hero />
+        <Services />
+        <Process />
+        {projectHubEnabled && <Hub />}
+        <Start hubEnabled={projectHubEnabled} signInHref={clientSignInHref} email={contactEmail} />
+      </main>
+      <Footer hubEnabled={projectHubEnabled} />
     </>
   );
 }

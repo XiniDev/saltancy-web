@@ -3,21 +3,24 @@
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
+/* Progressive enhancement: style for visitors whose browser runs no JavaScript. */
+@custom-variant noscript (@media (scripting: none));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-foreground-strong: var(--foreground-strong);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-faint-foreground: var(--faint-foreground);
+  --color-hairline: var(--hairline);
+  --color-hairline-soft: var(--hairline-soft);
+  --color-hairline-strong: var(--hairline-strong);
+  --color-panel: var(--panel);
+  --color-panel-well: var(--panel-well);
+  --color-panel-sidebar: var(--panel-sidebar);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-serif);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -43,108 +46,297 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * Halite — Ember. Dark-only.
+ *
+ * The --halite-* channels below are the only colour literals in the project.
+ * Every other colour is a named token built from them, so components and the
+ * light-stream canvas never carry a raw value.
+ */
 :root {
-  --background: hsl(40 33% 98%);
-  --foreground: hsl(20 14% 18%);
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(20 14% 18%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(20 14% 18%);
-  --primary: hsl(24 94% 50%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(34 100% 92%);
-  --secondary-foreground: hsl(20 82% 35%);
-  --muted: hsl(40 15% 93%);
-  --muted-foreground: hsl(25 7% 46%);
-  --accent: hsl(33 100% 96%);
-  --accent-foreground: hsl(24 94% 50%);
-  --destructive: hsl(0 84% 60%);
-  --border: hsl(40 15% 90%);
-  --input: hsl(40 15% 90%);
-  --ring: hsl(24 94% 50%);
+  color-scheme: dark;
+
+  /* Channels (H S L) */
+  --halite-ink: 24 26% 4%;
+  --halite-ink-raised: 27 29% 6%;
+  --halite-umber: 26 22% 13%;
+  --halite-salt: 33 53% 93%;
+  --halite-parchment: 34 40% 90%;
+  --halite-sand: 33 18% 68%;
+  --halite-dune: 27 14% 60%;
+  --halite-clay: 27 11% 50%;
+  --halite-glass: 32 100% 92%;
+  --halite-glass-light: 33 100% 94%;
+  --halite-ember: 24 94% 50%;
+  --halite-ember-deep: 20 82% 35%;
+  --halite-apricot: 34 100% 92%;
+  --halite-char: 26 44% 7%;
+  --halite-signal: 0 84% 60%;
+  --halite-shadow: 0 0% 0%;
+  --halite-amber: 27 85% 66%;
+  --halite-hot: 33 100% 87%;
+  --halite-frost: 207 48% 87%;
+  --halite-rust: 19 70% 35%;
+  --halite-spark: 37 100% 95%;
+  --halite-spark-warm: 31 100% 83%;
+
+  /* Surfaces and text */
+  --background: hsl(var(--halite-ink));
+  --foreground: hsl(var(--halite-parchment));
+  --foreground-strong: hsl(var(--halite-salt));
+  --muted-foreground: hsl(var(--halite-sand));
+  --subtle-foreground: hsl(var(--halite-dune));
+  --faint-foreground: hsl(var(--halite-clay));
+  --card: hsl(var(--halite-ink-raised));
+  --card-foreground: var(--foreground);
+  --popover: hsl(var(--halite-ink-raised));
+  --popover-foreground: var(--foreground);
+  --primary: hsl(var(--halite-ember));
+  --primary-foreground: hsl(var(--halite-char));
+  --secondary: hsl(var(--halite-ember-deep));
+  --secondary-foreground: hsl(var(--halite-apricot));
+  --muted: hsl(var(--halite-umber));
+  --accent: hsl(var(--halite-umber));
+  --accent-foreground: var(--foreground);
+  --destructive: hsl(var(--halite-signal));
+  --border: hsl(var(--halite-parchment) / 0.12);
+  --input: hsl(var(--halite-parchment) / 0.2);
+  --ring: var(--primary);
   --radius: 0.75rem;
 
-  --texture-grain: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='180'%20height='180'%3E%3Cfilter%20id='grain'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='saturate'%20values='0'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23grain)'/%3E%3C/svg%3E");
-  --glow-warm: radial-gradient(60% 50% at 50% 0%, hsl(24 94% 50% / 0.07), transparent 70%);
-  --glow-warm-color: hsl(24 94% 50% / 0.10);
-  --glow-node: radial-gradient(closest-side, color-mix(in oklch, var(--primary) 14%, transparent), transparent 70%);
-  --shadow-elevated: 0 1px 2px hsl(20 14% 18% / 0.04), 0 8px 24px -12px hsl(20 14% 18% / 0.08);
-  --shadow-floating: 0 2px 4px hsl(20 14% 18% / 0.06), 0 18px 40px -16px hsl(20 14% 18% / 0.14);
+  /* Hairlines */
+  --hairline: hsl(var(--halite-parchment) / 0.12);
+  --hairline-soft: hsl(var(--halite-parchment) / 0.08);
+  --hairline-strong: hsl(var(--halite-parchment) / 0.2);
 
-  --sidebar: hsl(40 33% 98%);
-  --sidebar-foreground: hsl(20 14% 18%);
-  --sidebar-primary: hsl(24 94% 50%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(40 15% 93%);
-  --sidebar-accent-foreground: hsl(20 14% 18%);
-  --sidebar-border: hsl(40 15% 90%);
-  --sidebar-ring: hsl(24 94% 50%);
-}
+  /* Text sitting over the light stream */
+  --text-halo: 0 1px 26px hsl(var(--halite-ink) / 0.92);
+  --text-halo-compact: 0 1px 22px hsl(var(--halite-ink) / 0.92);
 
-.dark {
-  --background: hsl(24 10% 10%);
-  --foreground: hsl(40 33% 98%);
-  --card: hsl(24 10% 12%);
-  --card-foreground: hsl(40 33% 98%);
-  --popover: hsl(24 10% 12%);
-  --popover-foreground: hsl(40 33% 98%);
-  --primary: hsl(24 94% 50%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(20 82% 35%);
-  --secondary-foreground: hsl(34 100% 92%);
-  --muted: hsl(24 10% 15%);
-  --muted-foreground: hsl(40 15% 70%);
-  --accent: hsl(24 10% 15%);
-  --accent-foreground: hsl(40 33% 98%);
-  --border: hsl(24 10% 20%);
-  --input: hsl(24 10% 20%);
-  --ring: hsl(24 94% 50%);
+  /* Glass crystal faces */
+  --glass-edge: hsl(var(--halite-glass) / 0.42);
+  --glass-edge-strong: hsl(var(--halite-glass) / 0.55);
+  --glass-edge-soft: hsl(var(--halite-glass) / 0.28);
+  --glass-fill: hsl(var(--halite-glass-light) / 0.06);
+  --glass-fill-top: hsl(var(--halite-glass-light) / 0.17);
+  --glass-fill-bottom: hsl(var(--halite-glass-light) / 0.03);
+  --glass-lattice: hsl(var(--halite-glass) / 0.17);
+  --glass-glow: hsl(var(--halite-spark-warm) / 0.08);
 
-  --glow-warm: radial-gradient(60% 50% at 50% 0%, hsl(24 94% 50% / 0.14), transparent 70%);
-  --glow-warm-color: hsl(24 94% 50% / 0.18);
-  --glow-node: radial-gradient(closest-side, color-mix(in oklch, var(--primary) 22%, transparent), transparent 70%);
-  --shadow-elevated: 0 1px 2px hsl(0 0% 0% / 0.3), 0 8px 24px -12px hsl(0 0% 0% / 0.5);
-  --shadow-floating: 0 2px 4px hsl(0 0% 0% / 0.35), 0 18px 40px -16px hsl(0 0% 0% / 0.6);
+  /* Ember (accent) crystal faces */
+  --ember-edge: hsl(var(--halite-ember) / 0.75);
+  --ember-fill: hsl(var(--halite-ember) / 0.35);
+  --ember-fill-soft: hsl(var(--halite-ember) / 0.22);
+  --ember-fill-top: hsl(var(--halite-ember) / 0.55);
+  --ember-glow: hsl(var(--halite-ember) / 0.55);
+  --ember-wash: hsl(var(--halite-ember) / 0.22);
 
-  --sidebar: hsl(24 10% 10%);
-  --sidebar-foreground: hsl(40 33% 98%);
-  --sidebar-primary: hsl(24 94% 50%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(24 10% 15%);
-  --sidebar-accent-foreground: hsl(40 33% 98%);
-  --sidebar-border: hsl(24 10% 20%);
-  --sidebar-ring: hsl(24 94% 50%);
+  /* Glass panels (project hub product shot) */
+  --panel: hsl(var(--halite-ink-raised) / 0.66);
+  --panel-solid: hsl(var(--halite-ink-raised) / 0.94);
+  --panel-sidebar: hsl(var(--halite-ink) / 0.4);
+  --panel-well: hsl(var(--halite-ink) / 0.45);
+  --shadow-panel: 0 60px 160px hsl(var(--halite-shadow) / 0.55);
+  --shadow-panel-compact: 0 40px 100px hsl(var(--halite-shadow) / 0.55);
+  --shadow-floating: 0 2px 4px hsl(var(--halite-shadow) / 0.35), 0 18px 40px -16px hsl(var(--halite-shadow) / 0.6);
+
+  /* Light stream (read by the canvas at runtime) */
+  --stream-amber: hsl(var(--halite-amber));
+  --stream-hot: hsl(var(--halite-hot));
+  --stream-ember: var(--primary);
+  --stream-salt: hsl(var(--halite-frost));
+  --stream-rust: hsl(var(--halite-rust));
+  --stream-spark-core: hsl(var(--halite-spark));
+  --stream-spark-warm: hsl(var(--halite-spark-warm) / 0.85);
+  --stream-spark-ember: hsl(var(--halite-ember) / 0.28);
+  --stream-spark-fade: hsl(var(--halite-ember) / 0);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply bg-background font-sans;
+  }
   body {
     @apply bg-background text-foreground;
   }
-  html {
-    @apply font-sans scroll-smooth;
-  }
-  html.cursor-none,
-  html.cursor-none *:not(input):not(textarea):not([contenteditable="true"]) {
-    cursor: none;
-  }
-  .pager {
-    scroll-snap-type: none;
-    scrollbar-width: none;
-  }
-  .pager::-webkit-scrollbar {
-    display: none;
-  }
   @media (prefers-reduced-motion: no-preference) {
-    .pager {
-      scroll-snap-type: y mandatory;
+    html {
+      scroll-behavior: smooth;
     }
   }
-  @media (prefers-reduced-motion: no-preference) and (max-width: 1023px) {
-    .pager {
-      scroll-snap-type: y proximity;
+}
+
+/* The logo mark draws itself in with JavaScript; without it, show it whole. */
+@media (scripting: none) {
+  [data-logo-mark] * {
+    opacity: 1 !important;
+    stroke-dasharray: none !important;
+    transform: none !important;
+  }
+}
+
+@utility text-halo {
+  text-shadow: var(--text-halo-compact);
+  @variant sm {
+    text-shadow: var(--text-halo);
+  }
+}
+
+/*
+ * CSS 3D crystals.
+ * Opacity and filters stay off every preserve-3d container: browsers flatten 3D
+ * when either is applied. Growth uses scale, never fading.
+ */
+@layer components {
+  .crystal-stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cube {
+    position: relative;
+    display: block;
+    width: var(--cube);
+    height: var(--cube);
+    transform-style: preserve-3d;
+  }
+
+  .cube-face {
+    position: absolute;
+    inset: 0;
+    display: block;
+    box-sizing: border-box;
+    border: 1px solid var(--glass-edge);
+    background-color: var(--glass-fill);
+    box-shadow: inset 0 0 var(--cube-inner-glow, 26px) var(--glass-glow);
+  }
+  .cube-face[data-face="front"] {
+    transform: translateZ(calc(var(--cube) / 2));
+  }
+  .cube-face[data-face="back"] {
+    transform: rotateY(180deg) translateZ(calc(var(--cube) / 2));
+  }
+  .cube-face[data-face="right"] {
+    transform: rotateY(90deg) translateZ(calc(var(--cube) / 2));
+  }
+  .cube-face[data-face="left"] {
+    transform: rotateY(-90deg) translateZ(calc(var(--cube) / 2));
+  }
+  .cube-face[data-face="top"] {
+    transform: rotateX(90deg) translateZ(calc(var(--cube) / 2));
+    border-color: var(--glass-edge-strong);
+    background-color: var(--glass-fill-top);
+  }
+  .cube-face[data-face="bottom"] {
+    transform: rotateX(-90deg) translateZ(calc(var(--cube) / 2));
+    border-color: var(--glass-edge-soft);
+    background-color: var(--glass-fill-bottom);
+  }
+
+  .cube[data-lattice] > .cube-face:not([data-face="bottom"]) {
+    background-image:
+      linear-gradient(var(--glass-lattice) 1px, transparent 1px),
+      linear-gradient(90deg, var(--glass-lattice) 1px, transparent 1px);
+    background-size: 50% 50%;
+    background-position: -1px -1px;
+  }
+
+  .cube[data-tone^="ember"] > .cube-face {
+    border-color: var(--ember-edge);
+    background-color: var(--ember-fill);
+    box-shadow: none;
+  }
+  .cube[data-tone="ember-soft"] > .cube-face {
+    background-color: var(--ember-fill-soft);
+  }
+  .cube[data-tone^="ember"] > .cube-face[data-face="top"] {
+    background-color: var(--ember-fill-top);
+  }
+  .cube[data-tone^="ember"] > .cube-face[data-face="bottom"] {
+    background-color: var(--ember-fill-soft);
+  }
+  .cube[data-glow] > .cube-face {
+    box-shadow: 0 0 var(--cube-glow, 22px) var(--ember-glow);
+  }
+
+  /* Resting angles: what reduced motion (and the first paint) shows. */
+  .crystal-spin {
+    transform: rotateX(-24deg) rotateY(38deg);
+  }
+  .crystal-core {
+    transform: rotateX(35deg) rotateY(45deg);
+  }
+  .crystal-turn {
+    transform: rotateX(-28deg) rotateY(40deg);
+  }
+
+  /* One cell of the process crystal's 2 x 2 x 2 assembly. */
+  .grow-cell {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translate3d(
+        calc(var(--cell-x) * var(--cube) / 2),
+        calc(var(--cell-y) * var(--cube) / 2),
+        calc(var(--cell-z) * var(--cube) / 2)
+      )
+      scale(var(--cell-shown, 1));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .crystal-spin {
+      animation: crystal-spin var(--spin-duration, 32s) linear var(--spin-delay, -5s) infinite;
+    }
+    .crystal-core {
+      animation: crystal-core 14s linear -3s infinite;
+    }
+    .crystal-turn {
+      animation: crystal-turn 40s linear -6s infinite;
+    }
+    .grow-cell {
+      transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) var(--cell-delay, 0s);
+    }
+    .ember-pulse {
+      animation: ember-pulse 1.6s ease-in-out infinite;
+    }
+  }
+
+  @keyframes crystal-spin {
+    from {
+      transform: rotateX(-24deg) rotateY(0deg);
+    }
+    to {
+      transform: rotateX(-24deg) rotateY(360deg);
+    }
+  }
+  @keyframes crystal-core {
+    from {
+      transform: rotateX(35deg) rotateY(360deg) rotateZ(0deg);
+    }
+    to {
+      transform: rotateX(35deg) rotateY(0deg) rotateZ(360deg);
+    }
+  }
+  @keyframes crystal-turn {
+    from {
+      transform: rotateX(-28deg) rotateY(20deg);
+    }
+    to {
+      transform: rotateX(-28deg) rotateY(380deg);
+    }
+  }
+  @keyframes ember-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
     }
   }
 }

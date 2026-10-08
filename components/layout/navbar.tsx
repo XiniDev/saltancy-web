@@ -1,16 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { Menu } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Container } from "@/components/primitives/container";
 import { Logo } from "@/components/brand/logo";
-import { Magnetic } from "@/components/primitives/magnetic";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import { ContactModal } from "@/components/contact-modal";
+import { StartProjectButton, pill } from "@/components/ember/pill";
+import { LockIcon, MenuIcon } from "@/components/ember/icons";
 import {
   Sheet,
   SheetContent,
@@ -19,208 +15,137 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { clientLogin, nav, primaryCta } from "@/lib/content/nav";
+import { ctaLabels, navLinks } from "@/lib/content/home";
 
-function sectionId(href: string) {
-  return href.split("#")[1] ?? "";
-}
-
-function getScrollTarget(): { el: HTMLElement | null; read: () => number } {
-  const pager = document.querySelector<HTMLElement>(".pager");
-  if (pager) return { el: pager, read: () => pager.scrollTop };
-  return { el: null, read: () => window.scrollY };
+function subscribeScroll(onChange: () => void) {
+  window.addEventListener("scroll", onChange, { passive: true });
+  return () => window.removeEventListener("scroll", onChange);
 }
 
 function useScrolled(threshold = 16) {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const { el, read } = getScrollTarget();
-    const target: HTMLElement | Window = el ?? window;
-    const onScroll = () => setScrolled(read() > threshold);
-    onScroll();
-    target.addEventListener("scroll", onScroll, { passive: true });
-    return () => target.removeEventListener("scroll", onScroll);
-  }, [threshold]);
-  return scrolled;
-}
-
-function useActiveSection() {
-  const [activeId, setActiveId] = useState("");
-  useEffect(() => {
-    const ids = nav.map((n) => sectionId(n.href)).filter(Boolean);
-    if (!ids.length) return;
-    const pager = document.querySelector<HTMLElement>(".pager");
-    const target: HTMLElement | Window = pager ?? window;
-
-    const onScroll = () => {
-      const mid = window.innerHeight / 2;
-      let current = "";
-      for (const id of ids) {
-        const el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= mid) current = id;
-      }
-      setActiveId(current);
-    };
-
-    onScroll();
-    target.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-    return () => {
-      target.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
-  return activeId;
-}
-
-function NavLink({
-  href,
-  label,
-  active,
-  onClick,
-  className,
-}: {
-  href: string;
-  label: string;
-  active?: boolean;
-  onClick?: () => void;
-  className?: string;
-}) {
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      aria-current={active ? "true" : undefined}
-      className={cn(
-        "group relative inline-flex items-center text-sm transition-colors",
-        active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
-        className
-      )}
-    >
-      {label}
-      <span
-        aria-hidden
-        className={cn(
-          "pointer-events-none absolute -bottom-1.5 left-0 h-px w-full origin-left bg-foreground/20 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-        )}
-      />
-      <span
-        aria-hidden
-        className={cn(
-          "pointer-events-none absolute -bottom-1.5 right-0 size-1 translate-x-1 rounded-[1px] bg-primary transition-opacity duration-300",
-          active ? "opacity-100" : "opacity-0"
-        )}
-      />
-    </Link>
+  return useSyncExternalStore(
+    subscribeScroll,
+    () => window.scrollY > threshold,
+    () => false
   );
 }
 
-export function Navbar({ homeHref = "/" }: { homeHref?: string }) {
+const iconButton =
+  "inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-hairline-strong text-foreground transition-colors hover:border-foreground/40 hover:text-foreground-strong outline-none focus-visible:ring-3 focus-visible:ring-ring/60";
+
+export function Navbar({ hubEnabled, signInHref }: { hubEnabled: boolean; signInHref: string }) {
   const scrolled = useScrolled();
-  const activeId = useActiveSection();
   const [open, setOpen] = useState(false);
+  const links = navLinks.filter((link) => hubEnabled || !link.hub);
 
   return (
     <header
+      data-site-header
       className={cn(
-        "fixed inset-x-0 top-0 z-40 transition-colors duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
-        scrolled ? "bg-background/80 backdrop-blur-md" : "bg-transparent"
+        "fixed inset-x-0 top-0 z-40 border-b transition-colors duration-300",
+        scrolled ? "border-hairline-soft bg-background/92" : "border-transparent bg-transparent"
       )}
     >
-      <span
-        aria-hidden
-        className={cn(
-          "absolute inset-x-0 bottom-0 h-px bg-foreground/10 transition-opacity duration-500 [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]",
-          scrolled ? "opacity-100" : "opacity-0"
-        )}
-      />
-      <Container
-        className={cn(
-          "flex items-center justify-between transition-[height] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          scrolled ? "h-16" : "h-20"
-        )}
+      <nav
+        aria-label="Main"
+        className="mx-auto flex h-16 w-full max-w-[1288px] items-center justify-between gap-6 pr-4 pl-5 sm:h-20 sm:px-6"
       >
-        <Magnetic>
-          <Link href={homeHref} aria-label="Saltancy home" className="inline-flex">
-            <Logo />
-          </Link>
-        </Magnetic>
+        <Link
+          href="/#top"
+          aria-label="Saltancy home"
+          className="inline-flex min-h-11 items-center rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/60"
+        >
+          <Logo />
+        </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
-          {nav.map((item) => (
-            <NavLink
-              key={item.href}
-              href={item.href}
-              label={item.label}
-              active={activeId === sectionId(item.href)}
-            />
+        <ul className="hidden items-center gap-[34px] text-sm lg:flex">
+          {links.map((link) => (
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                className="inline-flex min-h-11 items-center rounded-sm text-muted-foreground transition-colors outline-none hover:text-foreground-strong focus-visible:ring-3 focus-visible:ring-ring/60"
+              >
+                {link.label}
+              </Link>
+            </li>
           ))}
-          <span aria-hidden className="h-5 w-px bg-border" />
-          <ThemeSwitcher />
-          {clientLogin && (
-            <Link
-              href={clientLogin.href}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {clientLogin.label}
-            </Link>
-          )}
-          <Magnetic>
-            <ContactModal>
-              <Button className="rounded-2xl px-5">{primaryCta.label}</Button>
-            </ContactModal>
-          </Magnetic>
-        </nav>
+        </ul>
 
-        <div className="flex items-center gap-1 md:hidden">
-          <ThemeSwitcher />
+        <div className="flex items-center gap-2 lg:gap-[18px]">
+          {hubEnabled && (
+            <>
+              <Link
+                href={signInHref}
+                prefetch={false}
+                data-signin
+                className="hidden min-h-11 items-center gap-2 rounded-sm text-sm text-foreground transition-colors outline-none hover:text-foreground-strong focus-visible:ring-3 focus-visible:ring-ring/60 lg:inline-flex"
+              >
+                <LockIcon className="size-3.5" />
+                {ctaLabels.signIn}
+              </Link>
+              <Link
+                href={signInHref}
+                prefetch={false}
+                data-signin
+                aria-label={ctaLabels.signIn}
+                className={cn(iconButton, "lg:hidden")}
+              >
+                <LockIcon className="size-4" />
+              </Link>
+            </>
+          )}
+
+          <div className="hidden md:flex">
+            <StartProjectButton size="md" />
+          </div>
+
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-md" aria-label="Open menu">
-                <Menu />
-              </Button>
+              <button type="button" aria-label="Open menu" className={cn(iconButton, "lg:hidden noscript:hidden")}>
+                <MenuIcon className="size-[18px]" />
+              </button>
             </SheetTrigger>
-            <SheetContent side="right">
+            <SheetContent side="right" className="gap-0 border-hairline-soft">
               <SheetHeader className="sr-only">
-                <SheetTitle>Navigation</SheetTitle>
+                <SheetTitle>Menu</SheetTitle>
                 <SheetDescription>Saltancy site navigation</SheetDescription>
               </SheetHeader>
 
-              <div className="flex items-center">
-                <Logo animate={false} />
-              </div>
+              <Logo animate={false} />
 
-              <nav className="mt-8 flex flex-col">
-                {nav.map((item) => (
-                  <NavLink
-                    key={item.href}
-                    href={item.href}
-                    label={item.label}
-                    active={activeId === sectionId(item.href)}
-                    onClick={() => setOpen(false)}
-                    className="h-14 border-b border-border text-lg"
-                  />
+              <ul className="mt-8 flex flex-col">
+                {links.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      onClick={() => setOpen(false)}
+                      className="flex h-14 items-center border-b border-hairline font-serif text-xl text-foreground-strong outline-none focus-visible:text-primary"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
                 ))}
-              </nav>
+              </ul>
 
-              <div className="mt-8 flex flex-col gap-4">
-                <ContactModal>
-                  <Button className="h-12 w-full rounded-2xl text-base">{primaryCta.label}</Button>
-                </ContactModal>
-                {clientLogin && (
+              <div className="mt-8 flex flex-col gap-3">
+                <StartProjectButton block />
+                {hubEnabled && (
                   <Link
-                    href={clientLogin.href}
-                    className="rounded-md bg-muted/40 px-4 py-3 text-center text-sm text-muted-foreground"
+                    href={signInHref}
+                    prefetch={false}
+                    data-signin
+                    onClick={() => setOpen(false)}
+                    className={pill({ variant: "outline", block: true })}
                   >
-                    {clientLogin.label}
+                    <LockIcon className="size-3.5" />
+                    {ctaLabels.signIn}
                   </Link>
                 )}
               </div>
             </SheetContent>
           </Sheet>
         </div>
-      </Container>
+      </nav>
     </header>
   );
 }
