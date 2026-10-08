@@ -29,8 +29,15 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Checks and deploys
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The site runs on Cloudflare Workers through the [OpenNext adapter](https://opennext.js.org/cloudflare).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run build`, then `npm run test:e2e`: the Playwright suite under `next start`.
+- `npm run cf:build`, then `npm run test:e2e:worker`: the same suite against the Cloudflare build in
+  workerd, the runtime it ships on.
+- A push to `main` runs `.github/workflows/ship.yml`. It checks the Cloudflare build, both as it ships and with
+  the project hub flag flipped, and then deploys the exact build that passed.
+
+Never deploy from a local machine. OpenNext bundles every `.env*` file into the Worker, so `.env.local` would ship
+inside it.
